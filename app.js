@@ -16,7 +16,7 @@ const supabaseClient =
         SUPABASE_KEY
     );
 
-
+const CURRENCY = "SAR";
 // ========================================
 // SIGNUP
 // ========================================
