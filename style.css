@@ -800,48 +800,55 @@ tbody tr:hover {
 
 
 /* ========================================
-   EXPENSE
+   EXPENSE AMOUNT
 ======================================== */
 
-.expense-container {
-    max-width: 650px;
-}
-
 .amount-input {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: stretch;
     width: 100%;
+    min-height: 46px;
     border: 1px solid #cbd5e1;
-    border-radius: 10px;
+    border-radius: 9px;
     background: #ffffff;
     overflow: hidden;
 }
 
 .amount-input span {
-    position: static;
+    position: static !important;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    height: 44px;
-    font-weight: 600;
+    justify-content: center;
+    padding: 0 14px;
+    min-width: 58px;
     color: #2563eb;
     background: #f8fafc;
     border-right: 1px solid #e2e8f0;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .amount-input input {
-    flex: 1;
-    width: 100%;
-    border: none;
+    width: 100% !important;
+    min-width: 0;
+    height: 46px;
+    margin: 0;
+    padding: 0 14px;
+    border: none !important;
+    border-radius: 0;
     outline: none;
-    padding: 12px;
-    font-size: 16px;
-    background: transparent;
+    background: #ffffff;
+    color: #172033;
+    font-size: 15px;
+    box-shadow: none !important;
 }
 
 .amount-input input:focus {
+    border: none !important;
     outline: none;
-    box-shadow: none;
+    box-shadow: none !important;
 }
 /* ========================================
    TABLE
