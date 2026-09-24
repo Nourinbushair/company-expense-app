@@ -1,7 +1,8 @@
 // ========================================
 // COMPANY EXPENSE APP
-// Supabase Configuration
 // ========================================
+
+// Supabase configuration
 
 const SUPABASE_URL =
     "https://kdabddhuxypcihlbubzi.supabase.co";
@@ -92,12 +93,6 @@ if (signupForm) {
             message.textContent =
                 "Account created successfully!";
 
-
-            console.log(
-                "New user:",
-                data.user.id
-            );
-
         }
     );
 }
@@ -133,7 +128,7 @@ if (loginForm) {
                 "Logging in...";
 
 
-            const { data, error } =
+            const { error } =
                 await supabaseClient.auth
                     .signInWithPassword({
 
@@ -153,10 +148,6 @@ if (loginForm) {
             }
 
 
-            message.textContent =
-                "Login successful!";
-
-
             window.location.href =
                 "dashboard.html";
 
@@ -166,7 +157,37 @@ if (loginForm) {
 
 
 // ========================================
-// LOAD USER
+// GET CURRENT USER
+// ========================================
+
+async function getCurrentUser() {
+
+    const {
+        data: {
+            user
+        },
+        error
+    } =
+        await supabaseClient.auth.getUser();
+
+
+    if (error) {
+
+        console.error(
+            "Authentication error:",
+            error
+        );
+
+        return null;
+    }
+
+
+    return user;
+}
+
+
+// ========================================
+// LOAD USER PROFILE
 // ========================================
 
 async function loadUser() {
@@ -175,141 +196,39 @@ async function loadUser() {
         document.getElementById("userInfo");
 
 
-    try {
-
-        // Get logged-in user
-
-        const {
-            data: {
-                user
-            },
-            error: userError
-
-        } = await supabaseClient.auth.getUser();
+    const user =
+        await getCurrentUser();
 
 
-        if (userError) {
+    if (!user) {
 
-            console.error(
-                "User error:",
-                userError
-            );
+        window.location.href =
+            "index.html";
 
-            if (userInfo) {
-
-                userInfo.innerHTML =
-                    "<p>Unable to load user.</p>";
-
-            }
-
-            return;
-        }
+        return;
+    }
 
 
-        // No logged-in user
-
-        if (!user) {
-
-            window.location.href =
-                "index.html";
-
-            return;
-        }
-
-
-        console.log(
-            "Logged-in user:",
-            user.id
-        );
-
-
-        // Get profile
-
-        const {
-            data: profile,
-            error: profileError
-
-        } = await supabaseClient
-
+    const {
+        data: profile,
+        error
+    } =
+        await supabaseClient
             .from("profiles")
-
             .select(
                 "id, employee_id, name, email, department, role"
             )
-
             .eq(
                 "id",
                 user.id
             )
-
             .single();
 
 
-        if (profileError) {
-
-            console.error(
-                "Profile error:",
-                profileError
-            );
-
-
-            if (userInfo) {
-
-                userInfo.innerHTML = `
-                    <h3>Profile not found</h3>
-
-                    <p>
-                        Logged in as:
-                        <strong>${user.email}</strong>
-                    </p>
-
-                    <p>
-                        Your account exists, but your
-                        employee profile has not been created yet.
-                    </p>
-                `;
-
-            }
-
-            return;
-        }
-
-
-        // Display profile
-
-        if (userInfo) {
-
-            userInfo.innerHTML = `
-                <h3>
-                    Welcome, ${profile.name}
-                </h3>
-
-                <p>
-                    Employee ID:
-                    <strong>
-                        ${profile.employee_id}
-                    </strong>
-                </p>
-
-                <p>
-                    Department:
-                    ${profile.department || "Not specified"}
-                </p>
-
-                <p>
-                    Email:
-                    ${profile.email}
-                </p>
-            `;
-
-        }
-
-    }
-
-    catch (error) {
+    if (error) {
 
         console.error(
-            "Dashboard error:",
+            "Profile error:",
             error
         );
 
@@ -318,11 +237,42 @@ async function loadUser() {
 
             userInfo.innerHTML = `
                 <p>
-                    Error loading user.
+                    Profile could not be loaded.
                 </p>
             `;
 
         }
+
+        return;
+    }
+
+
+    if (userInfo) {
+
+        userInfo.innerHTML = `
+
+            <h3>
+                Welcome, ${profile.name}
+            </h3>
+
+            <p>
+                Employee ID:
+                <strong>
+                    ${profile.employee_id}
+                </strong>
+            </p>
+
+            <p>
+                Department:
+                ${profile.department || "Not specified"}
+            </p>
+
+            <p>
+                Email:
+                ${profile.email}
+            </p>
+
+        `;
 
     }
 
@@ -330,14 +280,164 @@ async function loadUser() {
 
 
 // ========================================
-// RUN LOAD USER ON DASHBOARD
+// LOAD DASHBOARD STATISTICS
 // ========================================
 
-if (
-    document.getElementById("userInfo")
-) {
+async function loadDashboardStats() {
 
-    loadUser();
+    console.log(
+        "Loading dashboard statistics..."
+    );
+
+
+    const {
+        data: expenses,
+        error
+    } =
+        await supabaseClient
+            .from("expenses")
+            .select(
+                "amount, expense_type"
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Dashboard expense error:",
+            error
+        );
+
+
+        const total =
+            document.getElementById(
+                "totalAmount"
+            );
+
+        if (total) {
+
+            total.textContent =
+                "Error";
+
+        }
+
+        return;
+    }
+
+
+    console.log(
+        "Expenses received:",
+        expenses
+    );
+
+
+    let totalAmount = 0;
+
+    let companyAmount = 0;
+
+    let personalAmount = 0;
+
+    let roomAmount = 0;
+
+
+    expenses.forEach(
+        function (expense) {
+
+            const amount =
+                Number(expense.amount) || 0;
+
+
+            totalAmount += amount;
+
+
+            if (
+                expense.expense_type ===
+                "Company"
+            ) {
+
+                companyAmount += amount;
+
+            }
+
+
+            if (
+                expense.expense_type ===
+                "Personal"
+            ) {
+
+                personalAmount += amount;
+
+            }
+
+
+            if (
+                expense.expense_type ===
+                "Room Expense"
+            ) {
+
+                roomAmount += amount;
+
+            }
+
+        }
+    );
+
+
+    const totalAmountEl =
+        document.getElementById(
+            "totalAmount"
+        );
+
+    const companyAmountEl =
+        document.getElementById(
+            "companyAmount"
+        );
+
+    const personalAmountEl =
+        document.getElementById(
+            "personalAmount"
+        );
+
+    const roomAmountEl =
+        document.getElementById(
+            "roomAmount"
+        );
+
+
+    if (totalAmountEl) {
+
+        totalAmountEl.textContent =
+            "₹" +
+            totalAmount.toFixed(2);
+
+    }
+
+
+    if (companyAmountEl) {
+
+        companyAmountEl.textContent =
+            "₹" +
+            companyAmount.toFixed(2);
+
+    }
+
+
+    if (personalAmountEl) {
+
+        personalAmountEl.textContent =
+            "₹" +
+            personalAmount.toFixed(2);
+
+    }
+
+
+    if (roomAmountEl) {
+
+        roomAmountEl.textContent =
+            "₹" +
+            roomAmount.toFixed(2);
+
+    }
 
 }
 
@@ -378,14 +478,20 @@ const expenseForm =
 
 if (expenseForm) {
 
-    // Set today's date
+    const dateInput =
+        document.getElementById(
+            "expenseDate"
+        );
 
-    document.getElementById(
-        "expenseDate"
-    ).value =
-        new Date()
-            .toISOString()
-            .split("T")[0];
+
+    if (dateInput) {
+
+        dateInput.value =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+    }
 
 
     expenseForm.addEventListener(
@@ -395,13 +501,8 @@ if (expenseForm) {
             event.preventDefault();
 
 
-            const {
-                data: {
-                    user
-                }
-            } =
-                await supabaseClient.auth
-                    .getUser();
+            const user =
+                await getCurrentUser();
 
 
             if (!user) {
@@ -420,7 +521,7 @@ if (expenseForm) {
 
 
             const amount =
-                parseFloat(
+                Number(
                     document.getElementById(
                         "amount"
                     ).value
@@ -481,6 +582,12 @@ if (expenseForm) {
 
             if (error) {
 
+                console.error(
+                    "Save expense error:",
+                    error
+                );
+
+
                 message.textContent =
                     error.message;
 
@@ -495,12 +602,14 @@ if (expenseForm) {
             expenseForm.reset();
 
 
-            document.getElementById(
-                "expenseDate"
-            ).value =
-                new Date()
-                    .toISOString()
-                    .split("T")[0];
+            if (dateInput) {
+
+                dateInput.value =
+                    new Date()
+                        .toISOString()
+                        .split("T")[0];
+
+            }
 
         }
     );
@@ -514,13 +623,8 @@ if (expenseForm) {
 
 async function loadExpenses() {
 
-    const {
-        data: {
-            user
-        }
-    } =
-        await supabaseClient.auth
-            .getUser();
+    const user =
+        await getCurrentUser();
 
 
     if (!user) {
@@ -537,9 +641,7 @@ async function loadExpenses() {
         error
     } =
         await supabaseClient
-
             .from("expenses")
-
             .select(`
                 id,
                 user_id,
@@ -549,7 +651,6 @@ async function loadExpenses() {
                 expense_type,
                 expense_date
             `)
-
             .order(
                 "expense_date",
                 {
@@ -560,10 +661,24 @@ async function loadExpenses() {
 
     if (error) {
 
-        document.getElementById(
-            "expensesMessage"
-        ).textContent =
-            error.message;
+        console.error(
+            "Load expenses error:",
+            error
+        );
+
+
+        const message =
+            document.getElementById(
+                "expensesMessage"
+            );
+
+
+        if (message) {
+
+            message.textContent =
+                error.message;
+
+        }
 
         return;
     }
@@ -571,23 +686,21 @@ async function loadExpenses() {
 
     const {
         data: profiles,
-        error: profilesError
+        error: profileError
     } =
         await supabaseClient
-
             .from("profiles")
-
             .select(
                 "id, employee_id, name"
             );
 
 
-    if (profilesError) {
+    if (profileError) {
 
-        document.getElementById(
-            "expensesMessage"
-        ).textContent =
-            profilesError.message;
+        console.error(
+            "Profiles error:",
+            profileError
+        );
 
         return;
     }
@@ -599,6 +712,12 @@ async function loadExpenses() {
         );
 
 
+    if (!table) {
+
+        return;
+    }
+
+
     table.innerHTML = "";
 
 
@@ -607,9 +726,9 @@ async function loadExpenses() {
 
             const profile =
                 profiles.find(
-                    function (p) {
+                    function (profile) {
 
-                        return p.id ===
+                        return profile.id ===
                             expense.user_id;
 
                     }
@@ -717,11 +836,13 @@ async function loadExpenses() {
 
 
 // ========================================
-// RUN LOAD EXPENSES
+// DASHBOARD
 // ========================================
 
 if (
-    document.getElementById("userInfo")
+    document.getElementById(
+        "userInfo"
+    )
 ) {
 
     loadUser();
@@ -729,155 +850,18 @@ if (
     loadDashboardStats();
 
 }
+
+
 // ========================================
-// LOAD DASHBOARD EXPENSE STATISTICS
+// ALL EXPENSES PAGE
 // ========================================
 
-async function loadDashboardStats() {
+if (
+    document.getElementById(
+        "expenseTable"
+    )
+) {
 
-    try {
-
-        const {
-            data: expenses,
-            error
-        } = await supabaseClient
-            .from("expenses")
-            .select("amount, expense_type");
-
-
-        if (error) {
-
-            console.error(
-                "Expense statistics error:",
-                error
-            );
-
-            return;
-        }
-
-
-        // Starting values
-
-        let totalAmount = 0;
-        let companyAmount = 0;
-        let personalAmount = 0;
-        let roomAmount = 0;
-
-
-        // Calculate totals
-
-        expenses.forEach(function (expense) {
-
-            const amount =
-                Number(expense.amount) || 0;
-
-
-            // Total
-
-            totalAmount += amount;
-
-
-            // Company
-
-            if (
-                expense.expense_type === "Company"
-            ) {
-
-                companyAmount += amount;
-
-            }
-
-
-            // Personal
-
-            if (
-                expense.expense_type === "Personal"
-            ) {
-
-                personalAmount += amount;
-
-            }
-
-
-            // Room Expense
-
-            if (
-                expense.expense_type === "Room Expense"
-            ) {
-
-                roomAmount += amount;
-
-            }
-
-        });
-
-
-        // Display totals
-
-        const totalAmountEl =
-            document.getElementById(
-                "totalAmount"
-            );
-
-        const companyAmountEl =
-            document.getElementById(
-                "companyAmount"
-            );
-
-        const personalAmountEl =
-            document.getElementById(
-                "personalAmount"
-            );
-
-        const roomAmountEl =
-            document.getElementById(
-                "roomAmount"
-            );
-
-
-        if (totalAmountEl) {
-
-            totalAmountEl.textContent =
-                "₹" +
-                totalAmount.toFixed(2);
-
-        }
-
-
-        if (companyAmountEl) {
-
-            companyAmountEl.textContent =
-                "₹" +
-                companyAmount.toFixed(2);
-
-        }
-
-
-        if (personalAmountEl) {
-
-            personalAmountEl.textContent =
-                "₹" +
-                personalAmount.toFixed(2);
-
-        }
-
-
-        if (roomAmountEl) {
-
-            roomAmountEl.textContent =
-                "₹" +
-                roomAmount.toFixed(2);
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Dashboard statistics error:",
-            error
-        );
-
-    }
+    loadExpenses();
 
 }
