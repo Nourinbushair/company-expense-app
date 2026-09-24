@@ -721,11 +721,163 @@ async function loadExpenses() {
 // ========================================
 
 if (
-    document.getElementById(
-        "expenseTable"
-    )
+    document.getElementById("userInfo")
 ) {
 
-    loadExpenses();
+    loadUser();
+
+    loadDashboardStats();
+
+}
+// ========================================
+// LOAD DASHBOARD EXPENSE STATISTICS
+// ========================================
+
+async function loadDashboardStats() {
+
+    try {
+
+        const {
+            data: expenses,
+            error
+        } = await supabaseClient
+            .from("expenses")
+            .select("amount, expense_type");
+
+
+        if (error) {
+
+            console.error(
+                "Expense statistics error:",
+                error
+            );
+
+            return;
+        }
+
+
+        // Starting values
+
+        let totalAmount = 0;
+        let companyAmount = 0;
+        let personalAmount = 0;
+        let roomAmount = 0;
+
+
+        // Calculate totals
+
+        expenses.forEach(function (expense) {
+
+            const amount =
+                Number(expense.amount) || 0;
+
+
+            // Total
+
+            totalAmount += amount;
+
+
+            // Company
+
+            if (
+                expense.expense_type === "Company"
+            ) {
+
+                companyAmount += amount;
+
+            }
+
+
+            // Personal
+
+            if (
+                expense.expense_type === "Personal"
+            ) {
+
+                personalAmount += amount;
+
+            }
+
+
+            // Room Expense
+
+            if (
+                expense.expense_type === "Room Expense"
+            ) {
+
+                roomAmount += amount;
+
+            }
+
+        });
+
+
+        // Display totals
+
+        const totalAmountEl =
+            document.getElementById(
+                "totalAmount"
+            );
+
+        const companyAmountEl =
+            document.getElementById(
+                "companyAmount"
+            );
+
+        const personalAmountEl =
+            document.getElementById(
+                "personalAmount"
+            );
+
+        const roomAmountEl =
+            document.getElementById(
+                "roomAmount"
+            );
+
+
+        if (totalAmountEl) {
+
+            totalAmountEl.textContent =
+                "₹" +
+                totalAmount.toFixed(2);
+
+        }
+
+
+        if (companyAmountEl) {
+
+            companyAmountEl.textContent =
+                "₹" +
+                companyAmount.toFixed(2);
+
+        }
+
+
+        if (personalAmountEl) {
+
+            personalAmountEl.textContent =
+                "₹" +
+                personalAmount.toFixed(2);
+
+        }
+
+
+        if (roomAmountEl) {
+
+            roomAmountEl.textContent =
+                "₹" +
+                roomAmount.toFixed(2);
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard statistics error:",
+            error
+        );
+
+    }
 
 }
