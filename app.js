@@ -1,5 +1,6 @@
 // ========================================
-// SUPABASE CONNECTION
+// COMPANY EXPENSE APP
+// Supabase Configuration
 // ========================================
 
 const SUPABASE_URL =
@@ -16,16 +17,7 @@ const supabaseClient =
 
 
 // ========================================
-// TEST APP
-// ========================================
-
-function testApp() {
-
-    alert("Supabase connection setup is ready!");
-
-}
-// ========================================
-// SIGN UP
+// SIGNUP
 // ========================================
 
 const signupForm =
@@ -35,19 +27,17 @@ if (signupForm) {
 
     signupForm.addEventListener(
         "submit",
-        async function(event) {
+        async function (event) {
 
             event.preventDefault();
 
             const name =
                 document.getElementById("name")
-                    .value
-                    .trim();
+                    .value.trim();
 
             const email =
                 document.getElementById("email")
-                    .value
-                    .trim();
+                    .value.trim();
 
             const password =
                 document.getElementById("password")
@@ -55,8 +45,7 @@ if (signupForm) {
 
             const department =
                 document.getElementById("department")
-                    .value
-                    .trim();
+                    .value.trim();
 
             const message =
                 document.getElementById("message");
@@ -65,10 +54,7 @@ if (signupForm) {
                 "Creating account...";
 
 
-            const {
-                data,
-                error
-            } =
+            const { data, error } =
                 await supabaseClient.auth.signUp({
 
                     email: email,
@@ -76,23 +62,16 @@ if (signupForm) {
                     password: password,
 
                     options: {
-
                         data: {
-
                             name: name,
-
                             department: department
-
                         }
-
                     }
 
                 });
 
 
             if (error) {
-
-                console.error(error);
 
                 message.textContent =
                     error.message;
@@ -114,16 +93,13 @@ if (signupForm) {
                 "Account created successfully!";
 
 
-            setTimeout(function() {
-
-                window.location.href =
-                    "index.html";
-
-            }, 1500);
+            console.log(
+                "New user:",
+                data.user.id
+            );
 
         }
     );
-
 }
 
 
@@ -134,39 +110,30 @@ if (signupForm) {
 const loginForm =
     document.getElementById("loginForm");
 
-
 if (loginForm) {
 
     loginForm.addEventListener(
         "submit",
-        async function(event) {
+        async function (event) {
 
             event.preventDefault();
 
-
             const email =
                 document.getElementById("loginEmail")
-                    .value
-                    .trim();
-
+                    .value.trim();
 
             const password =
                 document.getElementById("loginPassword")
                     .value;
 
-
             const message =
                 document.getElementById("loginMessage");
-
 
             message.textContent =
                 "Logging in...";
 
 
-            const {
-                data,
-                error
-            } =
+            const { data, error } =
                 await supabaseClient.auth
                     .signInWithPassword({
 
@@ -179,19 +146,8 @@ if (loginForm) {
 
             if (error) {
 
-                console.error(error);
-
                 message.textContent =
                     error.message;
-
-                return;
-            }
-
-
-            if (!data.user) {
-
-                message.textContent =
-                    "Login failed.";
 
                 return;
             }
@@ -206,7 +162,6 @@ if (loginForm) {
 
         }
     );
-
 }
 
 
@@ -216,74 +171,167 @@ if (loginForm) {
 
 async function loadUser() {
 
-    const {
-        data: {
-            user
-        }
-    } =
-        await supabaseClient.auth.getUser();
-
-
-    if (!user) {
-
-        window.location.href =
-            "index.html";
-
-        return;
-    }
-
-
-    const {
-        data: profile,
-        error
-    } =
-        await supabaseClient
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-
-
-    if (error) {
-
-        console.error(error);
-
-        return;
-    }
-
-
     const userInfo =
-        document.getElementById(
-            "userInfo"
+        document.getElementById("userInfo");
+
+
+    try {
+
+        // Get logged-in user
+
+        const {
+            data: {
+                user
+            },
+            error: userError
+
+        } = await supabaseClient.auth.getUser();
+
+
+        if (userError) {
+
+            console.error(
+                "User error:",
+                userError
+            );
+
+            if (userInfo) {
+
+                userInfo.innerHTML =
+                    "<p>Unable to load user.</p>";
+
+            }
+
+            return;
+        }
+
+
+        // No logged-in user
+
+        if (!user) {
+
+            window.location.href =
+                "index.html";
+
+            return;
+        }
+
+
+        console.log(
+            "Logged-in user:",
+            user.id
         );
 
 
-    if (userInfo) {
+        // Get profile
 
-        userInfo.innerHTML = `
+        const {
+            data: profile,
+            error: profileError
 
-            <h3>
-                Welcome, ${profile.name}
-            </h3>
+        } = await supabaseClient
 
-            <p>
-                Employee ID:
-                <strong>
-                    ${profile.employee_id}
-                </strong>
-            </p>
+            .from("profiles")
 
-            <p>
-                Department:
-                ${profile.department || "Not specified"}
-            </p>
+            .select(
+                "id, employee_id, name, email, department, role"
+            )
 
-        `;
+            .eq(
+                "id",
+                user.id
+            )
+
+            .single();
+
+
+        if (profileError) {
+
+            console.error(
+                "Profile error:",
+                profileError
+            );
+
+
+            if (userInfo) {
+
+                userInfo.innerHTML = `
+                    <h3>Profile not found</h3>
+
+                    <p>
+                        Logged in as:
+                        <strong>${user.email}</strong>
+                    </p>
+
+                    <p>
+                        Your account exists, but your
+                        employee profile has not been created yet.
+                    </p>
+                `;
+
+            }
+
+            return;
+        }
+
+
+        // Display profile
+
+        if (userInfo) {
+
+            userInfo.innerHTML = `
+                <h3>
+                    Welcome, ${profile.name}
+                </h3>
+
+                <p>
+                    Employee ID:
+                    <strong>
+                        ${profile.employee_id}
+                    </strong>
+                </p>
+
+                <p>
+                    Department:
+                    ${profile.department || "Not specified"}
+                </p>
+
+                <p>
+                    Email:
+                    ${profile.email}
+                </p>
+            `;
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+
+        if (userInfo) {
+
+            userInfo.innerHTML = `
+                <p>
+                    Error loading user.
+                </p>
+            `;
+
+        }
 
     }
 
 }
 
+
+// ========================================
+// RUN LOAD USER ON DASHBOARD
+// ========================================
 
 if (
     document.getElementById("userInfo")
@@ -300,16 +348,15 @@ if (
 
 async function logout() {
 
-    const {
-        error
-    } =
-        await supabaseClient.auth
-            .signOut();
+    const { error } =
+        await supabaseClient.auth.signOut();
 
 
     if (error) {
 
-        alert(error.message);
+        alert(
+            error.message
+        );
 
         return;
     }
@@ -326,32 +373,24 @@ async function logout() {
 // ========================================
 
 const expenseForm =
-    document.getElementById(
-        "expenseForm"
-    );
+    document.getElementById("expenseForm");
 
 
 if (expenseForm) {
 
-    const expenseDate =
-        document.getElementById(
-            "expenseDate"
-        );
+    // Set today's date
 
-
-    if (expenseDate) {
-
-        expenseDate.value =
-            new Date()
-                .toISOString()
-                .split("T")[0];
-
-    }
+    document.getElementById(
+        "expenseDate"
+    ).value =
+        new Date()
+            .toISOString()
+            .split("T")[0];
 
 
     expenseForm.addEventListener(
         "submit",
-        async function(event) {
+        async function (event) {
 
             event.preventDefault();
 
@@ -361,8 +400,7 @@ if (expenseForm) {
                     user
                 }
             } =
-                await supabaseClient
-                    .auth
+                await supabaseClient.auth
                     .getUser();
 
 
@@ -378,9 +416,7 @@ if (expenseForm) {
             const source =
                 document.getElementById(
                     "source"
-                )
-                .value
-                .trim();
+                ).value.trim();
 
 
             const amount =
@@ -394,9 +430,7 @@ if (expenseForm) {
             const forWhat =
                 document.getElementById(
                     "forWhat"
-                )
-                .value
-                .trim();
+                ).value.trim();
 
 
             const expenseType =
@@ -405,7 +439,7 @@ if (expenseForm) {
                 ).value;
 
 
-            const selectedDate =
+            const expenseDate =
                 document.getElementById(
                     "expenseDate"
                 ).value;
@@ -418,19 +452,23 @@ if (expenseForm) {
                     .from("expenses")
                     .insert({
 
-                        user_id: user.id,
+                        user_id:
+                            user.id,
 
-                        source: source,
+                        source:
+                            source,
 
-                        amount: amount,
+                        amount:
+                            amount,
 
-                        for_what: forWhat,
+                        for_what:
+                            forWhat,
 
                         expense_type:
                             expenseType,
 
                         expense_date:
-                            selectedDate
+                            expenseDate
 
                     });
 
@@ -442,8 +480,6 @@ if (expenseForm) {
 
 
             if (error) {
-
-                console.error(error);
 
                 message.textContent =
                     error.message;
@@ -459,14 +495,12 @@ if (expenseForm) {
             expenseForm.reset();
 
 
-            if (expenseDate) {
-
-                expenseDate.value =
-                    new Date()
-                        .toISOString()
-                        .split("T")[0];
-
-            }
+            document.getElementById(
+                "expenseDate"
+            ).value =
+                new Date()
+                    .toISOString()
+                    .split("T")[0];
 
         }
     );
@@ -475,7 +509,7 @@ if (expenseForm) {
 
 
 // ========================================
-// VIEW ALL EXPENSES
+// LOAD ALL EXPENSES
 // ========================================
 
 async function loadExpenses() {
@@ -503,7 +537,9 @@ async function loadExpenses() {
         error
     } =
         await supabaseClient
+
             .from("expenses")
+
             .select(`
                 id,
                 user_id,
@@ -513,6 +549,7 @@ async function loadExpenses() {
                 expense_type,
                 expense_date
             `)
+
             .order(
                 "expense_date",
                 {
@@ -523,18 +560,10 @@ async function loadExpenses() {
 
     if (error) {
 
-        const message =
-            document.getElementById(
-                "expensesMessage"
-            );
-
-
-        if (message) {
-
-            message.textContent =
-                error.message;
-
-        }
+        document.getElementById(
+            "expensesMessage"
+        ).textContent =
+            error.message;
 
         return;
     }
@@ -542,20 +571,23 @@ async function loadExpenses() {
 
     const {
         data: profiles,
-        error: profileError
+        error: profilesError
     } =
         await supabaseClient
+
             .from("profiles")
+
             .select(
                 "id, employee_id, name"
             );
 
 
-    if (profileError) {
+    if (profilesError) {
 
-        console.error(
-            profileError
-        );
+        document.getElementById(
+            "expensesMessage"
+        ).textContent =
+            profilesError.message;
 
         return;
     }
@@ -567,26 +599,18 @@ async function loadExpenses() {
         );
 
 
-    if (!table) {
-
-        return;
-    }
-
-
     table.innerHTML = "";
 
 
     expenses.forEach(
-        function(expense) {
+        function (expense) {
 
             const profile =
                 profiles.find(
-                    function(profile) {
+                    function (p) {
 
-                        return (
-                            profile.id ===
-                            expense.user_id
-                        );
+                        return p.id ===
+                            expense.user_id;
 
                     }
                 );
@@ -624,15 +648,18 @@ async function loadExpenses() {
                 );
 
             amountCell.textContent =
-                "₹" + expense.amount;
+                "₹" +
+                Number(
+                    expense.amount
+                ).toFixed(2);
 
 
-            const whatCell =
+            const forWhatCell =
                 document.createElement(
                     "td"
                 );
 
-            whatCell.textContent =
+            forWhatCell.textContent =
                 expense.for_what;
 
 
@@ -667,7 +694,7 @@ async function loadExpenses() {
             );
 
             row.appendChild(
-                whatCell
+                forWhatCell
             );
 
             row.appendChild(
@@ -679,13 +706,19 @@ async function loadExpenses() {
             );
 
 
-            table.appendChild(row);
+            table.appendChild(
+                row
+            );
 
         }
     );
 
 }
 
+
+// ========================================
+// RUN LOAD EXPENSES
+// ========================================
 
 if (
     document.getElementById(
