@@ -2,21 +2,29 @@
 // COMPANY EXPENSE APP
 // ========================================
 
+
 // ========================================
 // SUPABASE CONFIGURATION
 // ========================================
 
-const SUPABASE_URL = "https://kdabddhuxypcihlbubzi.supabase.co";
+const SUPABASE_URL =
+    "https://kdabddhuxypcihlbubzi.supabase.co";
 
 const SUPABASE_KEY =
     "sb_publishable_nkJMnNS4PSIQlNfGvXh7Gg_k9C7X9TA";
 
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
 
-// Currency
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+// ========================================
+// CURRENCY
+// ========================================
+
 const CURRENCY = "SAR";
 
 
@@ -36,7 +44,9 @@ async function signup() {
         document.getElementById("password")?.value;
 
     const department =
-        document.getElementById("department")?.value.trim();
+        document
+            .getElementById("department")
+            ?.value.trim();
 
     const message =
         document.getElementById("signupMessage");
@@ -45,8 +55,10 @@ async function signup() {
     if (!name || !email || !password) {
 
         if (message) {
+
             message.textContent =
                 "Please fill in all required fields.";
+
         }
 
         return;
@@ -56,8 +68,10 @@ async function signup() {
     if (password.length < 6) {
 
         if (message) {
+
             message.textContent =
                 "Password must be at least 6 characters.";
+
         }
 
         return;
@@ -65,12 +79,17 @@ async function signup() {
 
 
     if (message) {
+
         message.textContent =
             "Creating account...";
+
     }
 
 
-    const { data, error } =
+    const {
+        data,
+        error
+    } =
         await supabaseClient.auth.signUp({
 
             email: email,
@@ -78,10 +97,15 @@ async function signup() {
             password: password,
 
             options: {
+
                 data: {
+
                     name: name,
+
                     department: department
+
                 }
+
             }
 
         });
@@ -89,11 +113,16 @@ async function signup() {
 
     if (error) {
 
-        console.error(error);
+        console.error(
+            "Signup error:",
+            error
+        );
 
         if (message) {
+
             message.textContent =
                 error.message;
+
         }
 
         return;
@@ -107,9 +136,12 @@ async function signup() {
             message.textContent =
                 "Account created successfully. Redirecting...";
 
+
             setTimeout(() => {
+
                 window.location.href =
                     "dashboard.html";
+
             }, 1000);
 
         } else {
@@ -118,7 +150,9 @@ async function signup() {
                 "Account created. Please verify your email before logging in.";
 
         }
+
     }
+
 }
 
 
@@ -129,10 +163,14 @@ async function signup() {
 async function login() {
 
     const email =
-        document.getElementById("email")?.value.trim();
+        document
+            .getElementById("email")
+            ?.value.trim();
 
     const password =
-        document.getElementById("password")?.value;
+        document
+            .getElementById("password")
+            ?.value;
 
     const message =
         document.getElementById("loginMessage");
@@ -141,8 +179,10 @@ async function login() {
     if (!email || !password) {
 
         if (message) {
+
             message.textContent =
                 "Please enter your email and password.";
+
         }
 
         return;
@@ -150,12 +190,17 @@ async function login() {
 
 
     if (message) {
+
         message.textContent =
             "Logging in...";
+
     }
 
 
-    const { data, error } =
+    const {
+        data,
+        error
+    } =
         await supabaseClient.auth.signInWithPassword({
 
             email: email,
@@ -167,20 +212,33 @@ async function login() {
 
     if (error) {
 
-        console.error(error);
+        console.error(
+            "Login error:",
+            error
+        );
 
         if (message) {
+
             message.textContent =
                 error.message;
+
         }
 
         return;
     }
 
 
+    console.log(
+        "Logged in:",
+        data.user
+    );
+
+
     if (message) {
+
         message.textContent =
             "Login successful. Redirecting...";
+
     }
 
 
@@ -190,6 +248,7 @@ async function login() {
             "dashboard.html";
 
     }, 500);
+
 }
 
 
@@ -199,7 +258,9 @@ async function login() {
 
 async function logout() {
 
-    const { error } =
+    const {
+        error
+    } =
         await supabaseClient.auth.signOut();
 
 
@@ -216,6 +277,7 @@ async function logout() {
 
     window.location.href =
         "index.html";
+
 }
 
 
@@ -240,6 +302,7 @@ async function loadUser() {
             "index.html";
 
         return null;
+
     }
 
 
@@ -268,6 +331,7 @@ async function loadUser() {
         );
 
         return user;
+
     }
 
 
@@ -285,7 +349,9 @@ async function loadUser() {
 
         userInfo.innerHTML = `
 
-            <h2>${escapeHtml(profile.name)}</h2>
+            <h2>
+                ${escapeHtml(profile.name)}
+            </h2>
 
             <p>
                 <strong>Employee ID:</strong>
@@ -294,7 +360,10 @@ async function loadUser() {
 
             <p>
                 <strong>Department:</strong>
-                ${escapeHtml(profile.department || "Not specified")}
+                ${escapeHtml(
+                    profile.department ||
+                    "Not specified"
+                )}
             </p>
 
             <p>
@@ -303,10 +372,12 @@ async function loadUser() {
             </p>
 
         `;
+
     }
 
 
     return user;
+
 }
 
 
@@ -316,16 +387,43 @@ async function loadUser() {
 
 function escapeHtml(value) {
 
-    if (value === null || value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
         return "";
+
     }
 
+
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
 }
 
 
@@ -344,12 +442,16 @@ async function loadDashboardStats() {
         await supabaseClient.auth.getUser();
 
 
-    if (userError || !user) {
+    if (
+        userError ||
+        !user
+    ) {
 
         window.location.href =
             "index.html";
 
         return;
+
     }
 
 
@@ -359,7 +461,9 @@ async function loadDashboardStats() {
     } =
         await supabaseClient
             .from("expenses")
-            .select("amount, expense_type");
+            .select(
+                "amount, expense_type"
+            );
 
 
     if (error) {
@@ -370,6 +474,7 @@ async function loadDashboardStats() {
         );
 
         return;
+
     }
 
 
@@ -382,45 +487,49 @@ async function loadDashboardStats() {
     let roomAmount = 0;
 
 
-    expenses.forEach(expense => {
+    expenses.forEach(
+        expense => {
 
-        const amount =
-            Number(expense.amount) || 0;
+            const amount =
+                Number(
+                    expense.amount
+                ) || 0;
 
 
-        totalAmount += amount;
+            totalAmount += amount;
 
 
-        if (
-            expense.expense_type ===
-            "Company"
-        ) {
+            if (
+                expense.expense_type ===
+                "Company"
+            ) {
 
-            companyAmount += amount;
+                companyAmount += amount;
+
+            }
+
+
+            if (
+                expense.expense_type ===
+                "Personal"
+            ) {
+
+                personalAmount += amount;
+
+            }
+
+
+            if (
+                expense.expense_type ===
+                "Room Expense"
+            ) {
+
+                roomAmount += amount;
+
+            }
 
         }
-
-
-        if (
-            expense.expense_type ===
-            "Personal"
-        ) {
-
-            personalAmount += amount;
-
-        }
-
-
-        if (
-            expense.expense_type ===
-            "Room Expense"
-        ) {
-
-            roomAmount += amount;
-
-        }
-
-    });
+    );
 
 
     const totalAmountEl =
@@ -428,25 +537,24 @@ async function loadDashboardStats() {
             "totalAmount"
         );
 
+
     const companyAmountEl =
         document.getElementById(
             "companyAmount"
         );
+
 
     const personalAmountEl =
         document.getElementById(
             "personalAmount"
         );
 
+
     const roomAmountEl =
         document.getElementById(
             "roomAmount"
         );
 
-
-    // ====================================
-    // SAR CURRENCY DISPLAY
-    // ====================================
 
     if (totalAmountEl) {
 
@@ -496,25 +604,40 @@ async function loadDashboardStats() {
 
 async function addExpense() {
 
+    console.log(
+        "addExpense() started"
+    );
+
+
     const source =
-        document.getElementById(
-            "source"
-        )?.value.trim();
+        document
+            .getElementById("source")
+            ?.value.trim();
+
 
     const amount =
-        document.getElementById(
-            "amount"
-        )?.value;
+        document
+            .getElementById("amount")
+            ?.value;
+
 
     const forWhat =
-        document.getElementById(
-            "forWhat"
-        )?.value.trim();
+        document
+            .getElementById("forWhat")
+            ?.value.trim();
+
 
     const expenseType =
-        document.getElementById(
-            "expenseType"
-        )?.value;
+        document
+            .getElementById("expenseType")
+            ?.value;
+
+
+    const expenseDate =
+        document
+            .getElementById("expenseDate")
+            ?.value;
+
 
     const message =
         document.getElementById(
@@ -522,11 +645,22 @@ async function addExpense() {
         );
 
 
+    const saveButton =
+        document.getElementById(
+            "saveExpenseButton"
+        );
+
+
+    // ====================================
+    // VALIDATION
+    // ====================================
+
     if (
         !source ||
         !amount ||
         !forWhat ||
-        !expenseType
+        !expenseType ||
+        !expenseDate
     ) {
 
         if (message) {
@@ -537,6 +671,7 @@ async function addExpense() {
         }
 
         return;
+
     }
 
 
@@ -557,8 +692,42 @@ async function addExpense() {
         }
 
         return;
+
     }
 
+
+    const allowedTypes = [
+
+        "Company",
+
+        "Personal",
+
+        "Room Expense"
+
+    ];
+
+
+    if (
+        !allowedTypes.includes(
+            expenseType
+        )
+    ) {
+
+        if (message) {
+
+            message.textContent =
+                "Invalid expense type.";
+
+        }
+
+        return;
+
+    }
+
+
+    // ====================================
+    // GET LOGGED-IN USER
+    // ====================================
 
     const {
         data: {
@@ -569,12 +738,44 @@ async function addExpense() {
         await supabaseClient.auth.getUser();
 
 
-    if (userError || !user) {
+    if (
+        userError ||
+        !user
+    ) {
 
-        window.location.href =
-            "index.html";
+        if (message) {
+
+            message.textContent =
+                "Your session has expired. Please login again.";
+
+        }
+
+
+        setTimeout(() => {
+
+            window.location.href =
+                "index.html";
+
+        }, 1500);
+
 
         return;
+
+    }
+
+
+    // ====================================
+    // DISABLE BUTTON
+    // ====================================
+
+    if (saveButton) {
+
+        saveButton.disabled =
+            true;
+
+        saveButton.textContent =
+            "Saving...";
+
     }
 
 
@@ -586,25 +787,44 @@ async function addExpense() {
     }
 
 
+    // ====================================
+    // INSERT EXPENSE
+    // ====================================
+
     const {
+        data,
         error
     } =
         await supabaseClient
             .from("expenses")
             .insert([{
 
-                user_id: user.id,
+                user_id:
+                    user.id,
 
-                source: source,
+                source:
+                    source,
 
-                amount: numericAmount,
+                amount:
+                    numericAmount,
 
-                for_what: forWhat,
+                for_what:
+                    forWhat,
 
-                expense_type: expenseType
+                expense_type:
+                    expenseType,
 
-            }]);
+                expense_date:
+                    expenseDate
 
+            }])
+            .select()
+            .single();
+
+
+    // ====================================
+    // ERROR
+    // ====================================
 
     if (error) {
 
@@ -613,44 +833,76 @@ async function addExpense() {
             error
         );
 
+
         if (message) {
 
             message.textContent =
+                "Error: " +
                 error.message;
 
         }
 
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                "Save Expense";
+
+        }
+
+
         return;
+
     }
 
+
+    console.log(
+        "Expense added:",
+        data
+    );
+
+
+    // ====================================
+    // SUCCESS
+    // ====================================
 
     if (message) {
 
         message.textContent =
-            "Expense added successfully.";
+            "Expense added successfully!";
 
     }
 
 
-    document.getElementById(
-        "source"
-    ).value = "";
+    // Clear form
 
-    document.getElementById(
-        "amount"
-    ).value = "";
+    const form =
+        document.getElementById(
+            "expenseForm"
+        );
 
-    document.getElementById(
-        "forWhat"
-    ).value = "";
 
+    if (form) {
+
+        form.reset();
+
+    }
+
+
+    // ====================================
+    // REDIRECT
+    // ====================================
 
     setTimeout(() => {
 
         window.location.href =
             "dashboard.html";
 
-    }, 800);
+    }, 1000);
+
 }
 
 
@@ -669,12 +921,16 @@ async function loadAllExpenses() {
         await supabaseClient.auth.getUser();
 
 
-    if (userError || !user) {
+    if (
+        userError ||
+        !user
+    ) {
 
         window.location.href =
             "index.html";
 
         return;
+
     }
 
 
@@ -714,6 +970,7 @@ async function loadAllExpenses() {
         );
 
         return;
+
     }
 
 
@@ -724,7 +981,9 @@ async function loadAllExpenses() {
 
 
     if (!tableBody) {
+
         return;
+
     }
 
 
@@ -752,146 +1011,157 @@ async function loadAllExpenses() {
         `;
 
         return;
+
     }
 
 
-    expenses.forEach(expense => {
+    expenses.forEach(
+        expense => {
 
-        const row =
-            document.createElement(
-                "tr"
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            // Employee ID
+
+            const employeeCell =
+                document.createElement(
+                    "td"
+                );
+
+            employeeCell.textContent =
+                expense.profiles?.employee_id ||
+                "N/A";
+
+
+            // Name
+
+            const nameCell =
+                document.createElement(
+                    "td"
+                );
+
+            nameCell.textContent =
+                expense.profiles?.name ||
+                "Unknown";
+
+
+            // Source
+
+            const sourceCell =
+                document.createElement(
+                    "td"
+                );
+
+            sourceCell.textContent =
+                expense.source;
+
+
+            // Amount
+
+            const amountCell =
+                document.createElement(
+                    "td"
+                );
+
+            amountCell.textContent =
+                CURRENCY +
+                " " +
+                Number(
+                    expense.amount
+                ).toFixed(2);
+
+
+            // For What
+
+            const forWhatCell =
+                document.createElement(
+                    "td"
+                );
+
+            forWhatCell.textContent =
+                expense.for_what;
+
+
+            // Expense Type
+
+            const typeCell =
+                document.createElement(
+                    "td"
+                );
+
+            typeCell.textContent =
+                expense.expense_type;
+
+
+            // Date
+
+            const dateCell =
+                document.createElement(
+                    "td"
+                );
+
+            dateCell.textContent =
+                formatDate(
+                    expense.expense_date ||
+                    expense.created_at
+                );
+
+
+            // Created Time
+
+            const createdCell =
+                document.createElement(
+                    "td"
+                );
+
+            createdCell.textContent =
+                formatDateTime(
+                    expense.created_at
+                );
+
+
+            row.appendChild(
+                employeeCell
+            );
+
+            row.appendChild(
+                nameCell
+            );
+
+            row.appendChild(
+                sourceCell
+            );
+
+            row.appendChild(
+                amountCell
+            );
+
+            row.appendChild(
+                forWhatCell
+            );
+
+            row.appendChild(
+                typeCell
+            );
+
+            row.appendChild(
+                dateCell
+            );
+
+            row.appendChild(
+                createdCell
             );
 
 
-        // Employee ID
-        const employeeCell =
-            document.createElement(
-                "td"
+            tableBody.appendChild(
+                row
             );
 
-        employeeCell.textContent =
-            expense.profiles?.employee_id ||
-            "N/A";
-
-
-        // Name
-        const nameCell =
-            document.createElement(
-                "td"
-            );
-
-        nameCell.textContent =
-            expense.profiles?.name ||
-            "Unknown";
-
-
-        // Source
-        const sourceCell =
-            document.createElement(
-                "td"
-            );
-
-        sourceCell.textContent =
-            expense.source;
-
-
-        // Amount
-        const amountCell =
-            document.createElement(
-                "td"
-            );
-
-        amountCell.textContent =
-            CURRENCY +
-            " " +
-            Number(
-                expense.amount
-            ).toFixed(2);
-
-
-        // For What
-        const forWhatCell =
-            document.createElement(
-                "td"
-            );
-
-        forWhatCell.textContent =
-            expense.for_what;
-
-
-        // Expense Type
-        const typeCell =
-            document.createElement(
-                "td"
-            );
-
-        typeCell.textContent =
-            expense.expense_type;
-
-
-        // Date
-        const dateCell =
-            document.createElement(
-                "td"
-            );
-
-        dateCell.textContent =
-            formatDate(
-                expense.expense_date ||
-                expense.created_at
-            );
-
-
-        // Created Time
-        const createdCell =
-            document.createElement(
-                "td"
-            );
-
-        createdCell.textContent =
-            formatDateTime(
-                expense.created_at
-            );
-
-
-        row.appendChild(
-            employeeCell
-        );
-
-        row.appendChild(
-            nameCell
-        );
-
-        row.appendChild(
-            sourceCell
-        );
-
-        row.appendChild(
-            amountCell
-        );
-
-        row.appendChild(
-            forWhatCell
-        );
-
-        row.appendChild(
-            typeCell
-        );
-
-        row.appendChild(
-            dateCell
-        );
-
-        row.appendChild(
-            createdCell
-        );
-
-
-        tableBody.appendChild(
-            row
-        );
-
-    });
+        }
+    );
 
 }
 
@@ -911,12 +1181,16 @@ async function loadMyExpenses() {
         await supabaseClient.auth.getUser();
 
 
-    if (userError || !user) {
+    if (
+        userError ||
+        !user
+    ) {
 
         window.location.href =
             "index.html";
 
         return;
+
     }
 
 
@@ -947,6 +1221,7 @@ async function loadMyExpenses() {
         );
 
         return;
+
     }
 
 
@@ -957,7 +1232,9 @@ async function loadMyExpenses() {
 
 
     if (!tableBody) {
+
         return;
+
     }
 
 
@@ -985,172 +1262,184 @@ async function loadMyExpenses() {
         `;
 
         return;
+
     }
 
 
-    expenses.forEach(expense => {
+    expenses.forEach(
+        expense => {
 
-        const row =
-            document.createElement(
-                "tr"
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            // Source
+
+            const sourceCell =
+                document.createElement(
+                    "td"
+                );
+
+            sourceCell.textContent =
+                expense.source;
+
+
+            // Amount
+
+            const amountCell =
+                document.createElement(
+                    "td"
+                );
+
+            amountCell.textContent =
+                CURRENCY +
+                " " +
+                Number(
+                    expense.amount
+                ).toFixed(2);
+
+
+            // For What
+
+            const forWhatCell =
+                document.createElement(
+                    "td"
+                );
+
+            forWhatCell.textContent =
+                expense.for_what;
+
+
+            // Expense Type
+
+            const typeCell =
+                document.createElement(
+                    "td"
+                );
+
+            typeCell.textContent =
+                expense.expense_type;
+
+
+            // Date
+
+            const dateCell =
+                document.createElement(
+                    "td"
+                );
+
+            dateCell.textContent =
+                formatDate(
+                    expense.expense_date ||
+                    expense.created_at
+                );
+
+
+            // Edit
+
+            const editCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const editButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            editButton.textContent =
+                "Edit";
+
+
+            editButton.className =
+                "header-button";
+
+
+            editButton.onclick =
+                () =>
+                    editExpense(
+                        expense
+                    );
+
+
+            editCell.appendChild(
+                editButton
             );
 
 
-        // Source
-        const sourceCell =
-            document.createElement(
-                "td"
-            );
+            // Delete
 
-        sourceCell.textContent =
-            expense.source;
+            const deleteCell =
+                document.createElement(
+                    "td"
+                );
 
 
-        // Amount
-        const amountCell =
-            document.createElement(
-                "td"
-            );
-
-        amountCell.textContent =
-            CURRENCY +
-            " " +
-            Number(
-                expense.amount
-            ).toFixed(2);
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
 
 
-        // For What
-        const forWhatCell =
-            document.createElement(
-                "td"
-            );
-
-        forWhatCell.textContent =
-            expense.for_what;
+            deleteButton.textContent =
+                "Delete";
 
 
-        // Expense Type
-        const typeCell =
-            document.createElement(
-                "td"
-            );
-
-        typeCell.textContent =
-            expense.expense_type;
+            deleteButton.className =
+                "logout-button";
 
 
-        // Date
-        const dateCell =
-            document.createElement(
-                "td"
-            );
+            deleteButton.onclick =
+                () =>
+                    deleteExpense(
+                        expense.id
+                    );
 
-        dateCell.textContent =
-            formatDate(
-                expense.expense_date ||
-                expense.created_at
+
+            deleteCell.appendChild(
+                deleteButton
             );
 
 
-        // Edit button
-        const editCell =
-            document.createElement(
-                "td"
+            row.appendChild(
+                sourceCell
+            );
+
+            row.appendChild(
+                amountCell
+            );
+
+            row.appendChild(
+                forWhatCell
+            );
+
+            row.appendChild(
+                typeCell
+            );
+
+            row.appendChild(
+                dateCell
+            );
+
+            row.appendChild(
+                editCell
+            );
+
+            row.appendChild(
+                deleteCell
             );
 
 
-        const editButton =
-            document.createElement(
-                "button"
+            tableBody.appendChild(
+                row
             );
 
-
-        editButton.textContent =
-            "Edit";
-
-
-        editButton.className =
-            "header-button";
-
-
-        editButton.onclick =
-            () => editExpense(
-                expense
-            );
-
-
-        editCell.appendChild(
-            editButton
-        );
-
-
-        // Delete button
-        const deleteCell =
-            document.createElement(
-                "td"
-            );
-
-
-        const deleteButton =
-            document.createElement(
-                "button"
-            );
-
-
-        deleteButton.textContent =
-            "Delete";
-
-
-        deleteButton.className =
-            "logout-button";
-
-
-        deleteButton.onclick =
-            () => deleteExpense(
-                expense.id
-            );
-
-
-        deleteCell.appendChild(
-            deleteButton
-        );
-
-
-        row.appendChild(
-            sourceCell
-        );
-
-        row.appendChild(
-            amountCell
-        );
-
-        row.appendChild(
-            forWhatCell
-        );
-
-        row.appendChild(
-            typeCell
-        );
-
-        row.appendChild(
-            dateCell
-        );
-
-        row.appendChild(
-            editCell
-        );
-
-        row.appendChild(
-            deleteCell
-        );
-
-
-        tableBody.appendChild(
-            row
-        );
-
-    });
+        }
+    );
 
 }
 
@@ -1159,7 +1448,9 @@ async function loadMyExpenses() {
 // EDIT EXPENSE
 // ========================================
 
-async function editExpense(expense) {
+async function editExpense(
+    expense
+) {
 
     const newSource =
         prompt(
@@ -1169,7 +1460,9 @@ async function editExpense(expense) {
 
 
     if (newSource === null) {
+
         return;
+
     }
 
 
@@ -1181,7 +1474,9 @@ async function editExpense(expense) {
 
 
     if (newAmount === null) {
+
         return;
+
     }
 
 
@@ -1193,7 +1488,9 @@ async function editExpense(expense) {
 
 
     if (newForWhat === null) {
+
         return;
+
     }
 
 
@@ -1204,13 +1501,19 @@ async function editExpense(expense) {
         );
 
 
-    if (newExpenseType === null) {
+    if (
+        newExpenseType === null
+    ) {
+
         return;
+
     }
 
 
     const numericAmount =
-        Number(newAmount);
+        Number(
+            newAmount
+        );
 
 
     if (
@@ -1223,13 +1526,18 @@ async function editExpense(expense) {
         );
 
         return;
+
     }
 
 
     const allowedTypes = [
+
         "Company",
+
         "Personal",
+
         "Room Expense"
+
     ];
 
 
@@ -1244,6 +1552,7 @@ async function editExpense(expense) {
         );
 
         return;
+
     }
 
 
@@ -1285,6 +1594,7 @@ async function editExpense(expense) {
         );
 
         return;
+
     }
 
 
@@ -1294,6 +1604,7 @@ async function editExpense(expense) {
 
 
     loadMyExpenses();
+
 }
 
 
@@ -1312,7 +1623,9 @@ async function deleteExpense(
 
 
     if (!confirmed) {
+
         return;
+
     }
 
 
@@ -1340,6 +1653,7 @@ async function deleteExpense(
         );
 
         return;
+
     }
 
 
@@ -1349,6 +1663,7 @@ async function deleteExpense(
 
 
     loadMyExpenses();
+
 }
 
 
@@ -1356,30 +1671,47 @@ async function deleteExpense(
 // DATE FORMAT
 // ========================================
 
-function formatDate(dateValue) {
+function formatDate(
+    dateValue
+) {
 
     if (!dateValue) {
+
         return "N/A";
+
     }
 
 
     const date =
-        new Date(dateValue);
+        new Date(
+            dateValue
+        );
 
 
-    if (isNaN(date.getTime())) {
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
         return "N/A";
+
     }
 
 
     return date.toLocaleDateString(
         "en-IN",
         {
+
             year: "numeric",
+
             month: "short",
+
             day: "numeric"
+
         }
     );
+
 }
 
 
@@ -1387,32 +1719,158 @@ function formatDate(dateValue) {
 // DATE + TIME FORMAT
 // ========================================
 
-function formatDateTime(dateValue) {
+function formatDateTime(
+    dateValue
+) {
 
     if (!dateValue) {
+
         return "N/A";
+
     }
 
 
     const date =
-        new Date(dateValue);
+        new Date(
+            dateValue
+        );
 
 
-    if (isNaN(date.getTime())) {
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
         return "N/A";
+
     }
 
 
     return date.toLocaleString(
         "en-IN",
         {
+
             year: "numeric",
+
             month: "short",
+
             day: "numeric",
+
             hour: "2-digit",
+
             minute: "2-digit"
+
         }
     );
+
+}
+
+
+// ========================================
+// SET TODAY'S DATE
+// ========================================
+
+function setTodayDate() {
+
+    const expenseDate =
+        document.getElementById(
+            "expenseDate"
+        );
+
+
+    if (!expenseDate) {
+
+        return;
+
+    }
+
+
+    const now =
+        new Date();
+
+
+    const year =
+        now.getFullYear();
+
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    expenseDate.value =
+        `${year}-${month}-${day}`;
+
+}
+
+
+// ========================================
+// ADD EXPENSE FORM INITIALIZATION
+// ========================================
+
+function initializeAddExpensePage() {
+
+    console.log(
+        "Initializing Add Expense page..."
+    );
+
+
+    setTodayDate();
+
+
+    const expenseForm =
+        document.getElementById(
+            "expenseForm"
+        );
+
+
+    if (!expenseForm) {
+
+        console.error(
+            "expenseForm not found."
+        );
+
+        return;
+
+    }
+
+
+    expenseForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            // IMPORTANT:
+            // Prevent normal browser form submission
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            await addExpense();
+
+        }
+    );
+
+
+    console.log(
+        "Add Expense form ready."
+    );
+
 }
 
 
@@ -1459,5 +1917,20 @@ if (
 ) {
 
     loadMyExpenses();
+
+}
+
+
+// ========================================
+// ADD EXPENSE INITIALIZATION
+// ========================================
+
+if (
+    window.location.pathname.endsWith(
+        "add-expense.html"
+    )
+) {
+
+    initializeAddExpensePage();
 
 }
