@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>All Expenses</title>
+    <title>All Expenses - Company Expense App</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -16,38 +16,92 @@
 
 <body>
 
-    <div class="container">
+    <div class="container wide-container">
 
-        <h1>All Expenses</h1>
 
-        <table>
+        <div class="page-header">
 
-            <thead>
+            <div>
 
-                <tr>
-                    <th>User</th>
-                    <th>Source</th>
-                    <th>Amount</th>
-                    <th>For What</th>
-                    <th>Type</th>
-                    <th>Date</th>
-                </tr>
+                <h1>
+                    All Expenses
+                </h1>
 
-            </thead>
+                <p>
+                    Shared company expense records
+                </p>
 
-            <tbody id="expenseTable">
+            </div>
 
-            </tbody>
+            <a
+                href="add-expense.html"
+                class="header-button"
+            >
+                + Add Expense
+            </a>
 
-        </table>
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Employee
+                        </th>
+
+                        <th>
+                            Source
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                        <th>
+                            For What
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="expenseTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
 
         <p id="expensesMessage"></p>
 
-        <a href="dashboard.html">
-            Dashboard
+
+        <a
+            href="dashboard.html"
+            class="back-link"
+        >
+            ← Dashboard
         </a>
 
+
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

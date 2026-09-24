@@ -24,15 +24,12 @@ function testApp() {
     alert("Supabase connection setup is ready!");
 
 }
-
-
 // ========================================
 // SIGN UP
 // ========================================
 
 const signupForm =
     document.getElementById("signupForm");
-
 
 if (signupForm) {
 
@@ -42,47 +39,54 @@ if (signupForm) {
 
             event.preventDefault();
 
-
             const name =
                 document.getElementById("name")
                     .value
                     .trim();
-
 
             const email =
                 document.getElementById("email")
                     .value
                     .trim();
 
-
             const password =
                 document.getElementById("password")
                     .value;
-
 
             const department =
                 document.getElementById("department")
                     .value
                     .trim();
 
-
             const message =
                 document.getElementById("message");
-
 
             message.textContent =
                 "Creating account...";
 
-
-            // Create Supabase Auth account
 
             const {
                 data,
                 error
             } =
                 await supabaseClient.auth.signUp({
+
                     email: email,
-                    password: password
+
+                    password: password,
+
+                    options: {
+
+                        data: {
+
+                            name: name,
+
+                            department: department
+
+                        }
+
+                    }
+
                 });
 
 
@@ -106,53 +110,9 @@ if (signupForm) {
             }
 
 
-            // Get authenticated user ID
-
-            const userId =
-                data.user.id;
-
-
-            // Create profile
-
-            const {
-                error: profileError
-            } =
-                await supabaseClient
-                    .from("profiles")
-                    .insert({
-
-                        id: userId,
-
-                        name: name,
-
-                        email: email,
-
-                        department: department,
-
-                        role: "employee"
-
-                    });
-
-
-            if (profileError) {
-
-                console.error(
-                    profileError
-                );
-
-                message.textContent =
-                    "Account created, but profile setup failed: " +
-                    profileError.message;
-
-                return;
-            }
-
-
             message.textContent =
                 "Account created successfully!";
 
-
-            // Go to login page
 
             setTimeout(function() {
 

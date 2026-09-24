@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Add Expense</title>
+    <title>Add Expense - Company Expense App</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -16,13 +16,32 @@
 
 <body>
 
-    <div class="container">
+    <div class="container expense-container">
 
-        <h1>Add Expense</h1>
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Add Expense
+                </h1>
+
+                <p>
+                    Record a new expense
+                </p>
+
+            </div>
+
+        </div>
+
 
         <form id="expenseForm">
 
-            <label>Source</label>
+
+            <label for="source">
+                Source
+            </label>
 
             <input
                 type="text"
@@ -31,18 +50,30 @@
                 required
             >
 
-            <label>Expense Amount</label>
 
-            <input
-                type="number"
-                id="amount"
-                min="0.01"
-                step="0.01"
-                placeholder="500"
-                required
-            >
+            <label for="amount">
+                Expense Amount
+            </label>
 
-            <label>For What</label>
+            <div class="amount-input">
+
+                <span>₹</span>
+
+                <input
+                    type="number"
+                    id="amount"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="500"
+                    required
+                >
+
+            </div>
+
+
+            <label for="forWhat">
+                For What
+            </label>
 
             <input
                 type="text"
@@ -51,9 +82,15 @@
                 required
             >
 
-            <label>Company / Personal</label>
 
-            <select id="expenseType" required>
+            <label for="expenseType">
+                Expense Type
+            </label>
+
+            <select
+                id="expenseType"
+                required
+            >
 
                 <option value="Company">
                     Company
@@ -65,7 +102,10 @@
 
             </select>
 
-            <label>Date</label>
+
+            <label for="expenseDate">
+                Date
+            </label>
 
             <input
                 type="date"
@@ -73,19 +113,31 @@
                 required
             >
 
-            <button type="submit">
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
                 Save Expense
             </button>
 
+
         </form>
+
 
         <p id="expenseMessage"></p>
 
-        <a href="dashboard.html">
-            Back to Dashboard
+
+        <a
+            href="dashboard.html"
+            class="back-link"
+        >
+            ← Back to Dashboard
         </a>
 
+
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

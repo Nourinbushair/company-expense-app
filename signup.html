@@ -2,32 +2,49 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <title>Create Account</title>
+    <title>Create Account - Company Expense App</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="auth-container">
+
+        <div class="brand-icon">₹</div>
 
         <h1>Create Account</h1>
 
+        <p class="subtitle">
+            Join the company expense system
+        </p>
+
+
         <form id="signupForm">
 
-            <label>Name</label>
+            <label for="name">
+                Full Name
+            </label>
+
             <input
                 type="text"
                 id="name"
-                placeholder="Enter your name"
+                placeholder="Enter your full name"
                 required
             >
 
-            <label>Email</label>
+
+            <label for="email">
+                Email
+            </label>
+
             <input
                 type="email"
                 id="email"
@@ -35,35 +52,57 @@
                 required
             >
 
-            <label>Password</label>
+
+            <label for="password">
+                Password
+            </label>
+
             <input
                 type="password"
                 id="password"
                 placeholder="Create a password"
+                minlength="6"
                 required
             >
 
-            <label>Department</label>
+
+            <label for="department">
+                Department
+            </label>
+
             <input
                 type="text"
                 id="department"
-                placeholder="Example: IT"
+                placeholder="Example: IT, HR, Finance"
             >
 
-            <button type="submit">
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
                 Create Account
             </button>
 
         </form>
 
+
         <p id="message"></p>
 
-        <p>
-            Already have an account?
-            <a href="index.html">Login</a>
-        </p>
+
+        <div class="auth-footer">
+
+            <p>
+                Already have an account?
+                <a href="index.html">
+                    Login
+                </a>
+            </p>
+
+        </div>
 
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

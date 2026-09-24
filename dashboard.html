@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Dashboard</title>
+    <title>Dashboard - Company Expense App</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -16,29 +16,241 @@
 
 <body>
 
-    <div class="container">
+    <div class="dashboard-container">
 
-        <h1>Expense Dashboard</h1>
 
-        <div id="userInfo">
-            Loading user...
-        </div>
+        <!-- HEADER -->
 
-        <hr>
+        <header class="dashboard-header">
 
-        <button onclick="location.href='add-expense.html'">
-            + Add Expense
-        </button>
+            <div>
 
-        <button onclick="location.href='expenses.html'">
-            View Expenses
-        </button>
+                <h1>
+                    Company Expense App
+                </h1>
 
-        <button onclick="logout()">
-            Logout
-        </button>
+                <p>
+                    Expense Management Dashboard
+                </p>
+
+            </div>
+
+            <button
+                onclick="logout()"
+                class="logout-button"
+            >
+                Logout
+            </button>
+
+        </header>
+
+
+        <!-- USER PROFILE -->
+
+        <section class="profile-card">
+
+            <div class="profile-avatar">
+                👤
+            </div>
+
+            <div id="userInfo">
+
+                <p>
+                    Loading user...
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- SUMMARY CARDS -->
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <span class="summary-icon">
+                    ₹
+                </span>
+
+                <div>
+
+                    <p>
+                        Total Expenses
+                    </p>
+
+                    <h2 id="totalAmount">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-icon">
+                    🏢
+                </span>
+
+                <div>
+
+                    <p>
+                        Company Expenses
+                    </p>
+
+                    <h2 id="companyAmount">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-icon">
+                    👤
+                </span>
+
+                <div>
+
+                    <p>
+                        Personal Expenses
+                    </p>
+
+                    <h2 id="personalAmount">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ACTIONS -->
+
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <h2>
+                    Expense Management
+                </h2>
+
+                <p>
+                    Manage and review your expenses.
+                </p>
+
+            </div>
+
+
+            <div class="action-grid">
+
+
+                <a
+                    href="add-expense.html"
+                    class="action-card"
+                >
+
+                    <div class="action-icon">
+                        +
+                    </div>
+
+                    <h3>
+                        Add Expense
+                    </h3>
+
+                    <p>
+                        Record a new company or personal expense.
+                    </p>
+
+                </a>
+
+
+                <a
+                    href="expenses.html"
+                    class="action-card"
+                >
+
+                    <div class="action-icon">
+                        ☰
+                    </div>
+
+                    <h3>
+                        All Expenses
+                    </h3>
+
+                    <p>
+                        View expenses submitted by all employees.
+                    </p>
+
+                </a>
+
+
+                <a
+                    href="my-expenses.html"
+                    class="action-card"
+                >
+
+                    <div class="action-icon">
+                        👤
+                    </div>
+
+                    <h3>
+                        My Expenses
+                    </h3>
+
+                    <p>
+                        View and manage your own expenses.
+                    </p>
+
+                </a>
+
+
+                <a
+                    href="#"
+                    class="action-card disabled-card"
+                >
+
+                    <div class="action-icon">
+                        📊
+                    </div>
+
+                    <h3>
+                        Reports
+                    </h3>
+
+                    <p>
+                        Reports and charts will be available soon.
+                    </p>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="dashboard-footer">
+
+            <p>
+                Company Expense App
+                • Secure Expense Management
+            </p>
+
+        </footer>
+
 
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
