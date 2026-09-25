@@ -1,11 +1,8 @@
-// ========================================
+// ============================================
 // COMPANY EXPENSE APP
-// ========================================
+// ============================================
 
-// ========================================
-// SUPABASE CONFIGURATION
-// ========================================
-
+// SUPABASE
 const SUPABASE_URL =
     "https://kdabddhuxypcihlbubzi.supabase.co";
 
@@ -19,270 +16,30 @@ const supabaseClient =
     );
 
 
-// ========================================
 // CURRENCY
-// ========================================
-
 const CURRENCY = "SAR";
 
 
-// ========================================
-// SIGN UP
-// ========================================
+// ============================================
+// HELPER
+// ============================================
 
-async function signup() {
+function formatAmount(amount) {
 
-    const name =
-        document.getElementById("name")?.value.trim();
-
-    const email =
-        document.getElementById("email")?.value.trim();
-
-    const password =
-        document.getElementById("password")?.value;
-
-    const department =
-        document.getElementById("department")?.value.trim();
-
-    const message =
-        document.getElementById("signupMessage") ||
-        document.getElementById("message");
-
-
-    if (!name || !email || !password) {
-
-        if (message) {
-            message.textContent =
-                "Please fill in all required fields.";
-        }
-
-        return;
-    }
-
-
-    if (password.length < 6) {
-
-        if (message) {
-            message.textContent =
-                "Password must be at least 6 characters.";
-        }
-
-        return;
-    }
-
-
-    if (message) {
-        message.textContent =
-            "Creating account...";
-    }
-
-
-    const { data, error } =
-        await supabaseClient.auth.signUp({
-
-            email: email,
-
-            password: password,
-
-            options: {
-
-                data: {
-                    name: name,
-                    department: department
-                }
-
-            }
-
-        });
-
-
-    if (error) {
-
-        console.error(
-            "Signup error:",
-            error
-        );
-
-        if (message) {
-            message.textContent =
-                error.message;
-        }
-
-        return;
-    }
-
-
-    if (data.session) {
-
-        if (message) {
-            message.textContent =
-                "Account created successfully. Redirecting...";
-        }
-
-        setTimeout(() => {
-            window.location.href =
-                "dashboard.html";
-        }, 1000);
-
-    } else {
-
-        if (message) {
-            message.textContent =
-                "Account created. Please verify your email before logging in.";
-        }
-
-    }
+    return CURRENCY + " " +
+        Number(amount).toFixed(2);
 
 }
 
 
-// ========================================
-// LOGIN
-// ========================================
+// ============================================
+// SIGNUP
+// ============================================
 
-async function login() {
+const signupForm =
+    document.getElementById("signupForm");
 
-    const email =
-        document.getElementById("loginEmail")?.value.trim();
-
-    const password =
-        document.getElementById("loginPassword")?.value;
-
-    const message =
-        document.getElementById("loginMessage");
-
-
-    console.log("Login function started");
-
-
-    if (!email || !password) {
-
-        if (message) {
-            message.textContent =
-                "Please enter your email and password.";
-        }
-
-        return;
-    }
-
-
-    if (message) {
-        message.textContent =
-            "Logging in...";
-    }
-
-
-    try {
-
-        const { data, error } =
-            await supabaseClient.auth.signInWithPassword({
-
-                email: email,
-
-                password: password
-
-            });
-
-
-        if (error) {
-
-            console.error(
-                "Login error:",
-                error
-            );
-
-            if (message) {
-                message.textContent =
-                    error.message;
-            }
-
-            return;
-        }
-
-
-        console.log(
-            "Login successful:",
-            data.user
-        );
-
-
-        if (message) {
-            message.textContent =
-                "Login successful. Redirecting...";
-        }
-
-
-        window.location.href =
-            "dashboard.html";
-
-
-    } catch (error) {
-
-        console.error(
-            "Unexpected login error:",
-            error
-        );
-
-        if (message) {
-            message.textContent =
-                "Something went wrong. Please try again.";
-        }
-
-    }
-
-}
-
-
-// ========================================
-// LOGIN FORM INITIALIZATION
-// ========================================
-
-function initializeLoginPage() {
-
-    const loginForm =
-        document.getElementById("loginForm");
-
-
-    if (!loginForm) {
-        return;
-    }
-
-
-    loginForm.addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-            await login();
-
-        }
-    );
-
-
-    console.log(
-        "Login form ready."
-    );
-
-}
-
-
-// ========================================
-// SIGNUP FORM INITIALIZATION
-// ========================================
-
-function initializeSignupPage() {
-
-    const signupForm =
-        document.getElementById("signupForm");
-
-
-    if (!signupForm) {
-        return;
-    }
-
+if (signupForm) {
 
     signupForm.addEventListener(
         "submit",
@@ -290,62 +47,221 @@ function initializeSignupPage() {
 
             event.preventDefault();
 
-            event.stopPropagation();
+            const name =
+                document.getElementById("name")
+                    .value.trim();
 
-            await signup();
+            const email =
+                document.getElementById("email")
+                    .value.trim();
+
+            const password =
+                document.getElementById("password")
+                    .value;
+
+            const department =
+                document.getElementById("department")
+                    .value.trim();
+
+            const message =
+                document.getElementById("message");
+
+            message.textContent =
+                "Creating account...";
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signUp({
+
+                    email: email,
+
+                    password: password,
+
+                    options: {
+
+                        data: {
+
+                            name: name,
+
+                            department:
+                                department
+
+                        }
+
+                    }
+
+                });
+
+
+            if (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    error.message;
+
+                return;
+
+            }
+
+
+            if (!data.user) {
+
+                message.textContent =
+                    "Account creation failed.";
+
+                return;
+
+            }
+
+
+            message.textContent =
+                "Account created successfully!";
+
+
+            setTimeout(
+                function() {
+
+                    window.location.href =
+                        "index.html";
+
+                },
+                1500
+            );
 
         }
     );
 
+}
 
-    console.log(
-        "Signup form ready."
+
+// ============================================
+// LOGIN
+// ============================================
+
+const loginForm =
+    document.getElementById("loginForm");
+
+if (loginForm) {
+
+    loginForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            const email =
+                document.getElementById("loginEmail")
+                    .value.trim();
+
+            const password =
+                document.getElementById("loginPassword")
+                    .value;
+
+            const message =
+                document.getElementById(
+                    "loginMessage"
+                );
+
+
+            message.textContent =
+                "Logging in...";
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth
+                    .signInWithPassword({
+
+                        email: email,
+
+                        password: password
+
+                    });
+
+
+            if (error) {
+
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+                message.textContent =
+                    error.message;
+
+                return;
+
+            }
+
+
+            if (!data.user) {
+
+                message.textContent =
+                    "Login failed.";
+
+                return;
+
+            }
+
+
+            message.textContent =
+                "Login successful!";
+
+
+            window.location.href =
+                "dashboard.html";
+
+        }
     );
 
 }
 
 
-// ========================================
-// LOGOUT
-// ========================================
+// ============================================
+// GET CURRENT USER
+// ============================================
 
-async function logout() {
+async function getCurrentUser() {
 
-    const { error } =
-        await supabaseClient.auth.signOut();
+    const {
+        data,
+        error
+    } =
+        await supabaseClient.auth
+            .getUser();
 
 
     if (error) {
 
-        console.error(
-            "Logout error:",
-            error
-        );
+        console.error(error);
 
-        return;
+        return null;
+
     }
 
 
-    window.location.href =
-        "index.html";
+    return data.user;
 
 }
 
 
-// ========================================
-// LOAD CURRENT USER
-// ========================================
+// ============================================
+// LOAD USER PROFILE
+// ============================================
 
-async function loadUser() {
+async function loadUserProfile() {
 
-    const {
-        data: { user },
-        error
-    } =
-        await supabaseClient.auth.getUser();
+    const user =
+        await getCurrentUser();
 
 
-    if (error || !user) {
+    if (!user) {
 
         window.location.href =
             "index.html";
@@ -355,15 +271,9 @@ async function loadUser() {
     }
 
 
-    console.log(
-        "Logged in user:",
-        user
-    );
-
-
     const {
         data: profile,
-        error: profileError
+        error
     } =
         await supabaseClient
             .from("profiles")
@@ -372,46 +282,47 @@ async function loadUser() {
             .single();
 
 
-    if (profileError) {
+    if (error) {
 
         console.error(
             "Profile error:",
-            profileError
+            error
         );
 
-        return user;
+        return null;
 
     }
 
 
     const userInfo =
-        document.getElementById("userInfo");
+        document.getElementById(
+            "userInfo"
+        );
 
 
     if (userInfo) {
 
         userInfo.innerHTML = `
 
-            <h2>
-                ${escapeHtml(profile.name)}
-            </h2>
+            <h3>
+                Welcome, ${profile.name}
+            </h3>
 
             <p>
-                <strong>Employee ID:</strong>
-                ${escapeHtml(profile.employee_id)}
+                Employee ID:
+                <strong>
+                    ${profile.employee_id}
+                </strong>
             </p>
 
             <p>
-                <strong>Department:</strong>
-                ${escapeHtml(
-                    profile.department ||
-                    "Not specified"
-                )}
+                Department:
+                ${profile.department || "Not specified"}
             </p>
 
             <p>
-                <strong>Email:</strong>
-                ${escapeHtml(profile.email)}
+                Email:
+                ${profile.email}
             </p>
 
         `;
@@ -419,49 +330,22 @@ async function loadUser() {
     }
 
 
-    return user;
+    return profile;
 
 }
 
 
-// ========================================
-// ESCAPE HTML
-// ========================================
+// ============================================
+// DASHBOARD
+// ============================================
 
-function escapeHtml(value) {
+async function loadDashboard() {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
-    }
+    const user =
+        await getCurrentUser();
 
 
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-// ========================================
-// DASHBOARD STATISTICS
-// ========================================
-
-async function loadDashboardStats() {
-
-    const {
-        data: { user },
-        error: userError
-    } =
-        await supabaseClient.auth.getUser();
-
-
-    if (userError || !user) {
+    if (!user) {
 
         window.location.href =
             "index.html";
@@ -471,305 +355,158 @@ async function loadDashboardStats() {
     }
 
 
+    await loadUserProfile();
+
+
     const {
         data: expenses,
         error
     } =
         await supabaseClient
             .from("expenses")
-            .select("amount, expense_type");
+            .select("*");
 
 
     if (error) {
 
-        console.error(
-            "Dashboard expenses error:",
-            error
-        );
+        console.error(error);
 
         return;
 
     }
 
 
-    let totalAmount = 0;
-    let companyAmount = 0;
-    let personalAmount = 0;
-    let roomAmount = 0;
+    let total = 0;
+
+    let company = 0;
+
+    let personal = 0;
+
+    let room = 0;
 
 
-    expenses.forEach(expense => {
+    expenses.forEach(
+        function(expense) {
 
-        const amount =
-            Number(expense.amount) || 0;
+            const amount =
+                Number(expense.amount);
+
+            total += amount;
 
 
-        totalAmount += amount;
+            if (
+                expense.expense_type ===
+                "Company"
+            ) {
+
+                company += amount;
+
+            }
 
 
-        if (expense.expense_type === "Company") {
-            companyAmount += amount;
+            if (
+                expense.expense_type ===
+                "Personal"
+            ) {
+
+                personal += amount;
+
+            }
+
+
+            if (
+                expense.expense_type ===
+                "Room Expense"
+            ) {
+
+                room += amount;
+
+            }
+
         }
-
-
-        if (expense.expense_type === "Personal") {
-            personalAmount += amount;
-        }
-
-
-        if (expense.expense_type === "Room Expense") {
-            roomAmount += amount;
-        }
-
-    });
-
-
-    document.getElementById("totalAmount").textContent =
-        CURRENCY + " " + totalAmount.toFixed(2);
-
-    document.getElementById("companyAmount").textContent =
-        CURRENCY + " " + companyAmount.toFixed(2);
-
-    document.getElementById("personalAmount").textContent =
-        CURRENCY + " " + personalAmount.toFixed(2);
-
-    document.getElementById("roomAmount").textContent =
-        CURRENCY + " " + roomAmount.toFixed(2);
-
-}
-
-
-// ========================================
-// ADD EXPENSE
-// ========================================
-
-async function addExpense() {
-
-    const source =
-        document.getElementById("source")?.value.trim();
-
-    const amount =
-        document.getElementById("amount")?.value;
-
-    const forWhat =
-        document.getElementById("forWhat")?.value.trim();
-
-    const expenseType =
-        document.getElementById("expenseType")?.value;
-
-    const expenseDate =
-        document.getElementById("expenseDate")?.value;
-
-    const message =
-        document.getElementById("expenseMessage");
-
-    const saveButton =
-        document.getElementById("saveExpenseButton");
-
-
-    if (
-        !source ||
-        !amount ||
-        !forWhat ||
-        !expenseType ||
-        !expenseDate
-    ) {
-
-        if (message) {
-            message.textContent =
-                "Please fill in all fields.";
-        }
-
-        return;
-    }
-
-
-    const numericAmount =
-        Number(amount);
-
-
-    if (
-        isNaN(numericAmount) ||
-        numericAmount <= 0
-    ) {
-
-        if (message) {
-            message.textContent =
-                "Please enter a valid amount.";
-        }
-
-        return;
-    }
-
-
-    const allowedTypes = [
-        "Company",
-        "Personal",
-        "Room Expense"
-    ];
-
-
-    if (!allowedTypes.includes(expenseType)) {
-
-        if (message) {
-            message.textContent =
-                "Invalid expense type.";
-        }
-
-        return;
-    }
-
-
-    const {
-        data: { user },
-        error: userError
-    } =
-        await supabaseClient.auth.getUser();
-
-
-    if (userError || !user) {
-
-        if (message) {
-            message.textContent =
-                "Your session has expired. Please login again.";
-        }
-
-        setTimeout(() => {
-            window.location.href =
-                "index.html";
-        }, 1500);
-
-        return;
-    }
-
-
-    if (saveButton) {
-        saveButton.disabled = true;
-        saveButton.textContent = "Saving...";
-    }
-
-
-    if (message) {
-        message.textContent =
-            "Saving expense...";
-    }
-
-
-    const { data, error } =
-        await supabaseClient
-            .from("expenses")
-            .insert([{
-
-                user_id: user.id,
-
-                source: source,
-
-                amount: numericAmount,
-
-                for_what: forWhat,
-
-                expense_type: expenseType,
-
-                expense_date: expenseDate
-
-            }])
-            .select()
-            .single();
-
-
-    if (error) {
-
-        console.error(
-            "Add expense error:",
-            error
-        );
-
-        if (message) {
-            message.textContent =
-                "Error: " + error.message;
-        }
-
-        if (saveButton) {
-            saveButton.disabled = false;
-            saveButton.textContent =
-                "Save Expense";
-        }
-
-        return;
-    }
-
-
-    console.log(
-        "Expense added:",
-        data
     );
 
 
-    if (message) {
-        message.textContent =
-            "Expense added successfully!";
+    const totalElement =
+        document.getElementById(
+            "totalAmount"
+        );
+
+    const companyElement =
+        document.getElementById(
+            "companyAmount"
+        );
+
+    const personalElement =
+        document.getElementById(
+            "personalAmount"
+        );
+
+    const roomElement =
+        document.getElementById(
+            "roomAmount"
+        );
+
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            formatAmount(total);
+
     }
 
 
-    setTimeout(() => {
-        window.location.href =
-            "dashboard.html";
-    }, 1000);
+    if (companyElement) {
+
+        companyElement.textContent =
+            formatAmount(company);
+
+    }
+
+
+    if (personalElement) {
+
+        personalElement.textContent =
+            formatAmount(personal);
+
+    }
+
+
+    if (roomElement) {
+
+        roomElement.textContent =
+            formatAmount(room);
+
+    }
 
 }
 
 
-// ========================================
-// SET TODAY DATE
-// ========================================
+// ============================================
+// ADD EXPENSE
+// ============================================
 
-function setTodayDate() {
+const expenseForm =
+    document.getElementById(
+        "expenseForm"
+    );
+
+
+if (expenseForm) {
 
     const expenseDate =
-        document.getElementById("expenseDate");
+        document.getElementById(
+            "expenseDate"
+        );
 
 
-    if (!expenseDate) {
-        return;
-    }
+    if (expenseDate) {
 
+        expenseDate.value =
+            new Date()
+                .toISOString()
+                .split("T")[0];
 
-    const now = new Date();
-
-
-    const year =
-        now.getFullYear();
-
-    const month =
-        String(now.getMonth() + 1)
-            .padStart(2, "0");
-
-    const day =
-        String(now.getDate())
-            .padStart(2, "0");
-
-
-    expenseDate.value =
-        `${year}-${month}-${day}`;
-
-}
-
-
-// ========================================
-// ADD EXPENSE INITIALIZATION
-// ========================================
-
-function initializeAddExpensePage() {
-
-    setTodayDate();
-
-
-    const expenseForm =
-        document.getElementById("expenseForm");
-
-
-    if (!expenseForm) {
-        return;
     }
 
 
@@ -779,9 +516,134 @@ function initializeAddExpensePage() {
 
             event.preventDefault();
 
-            event.stopPropagation();
 
-            await addExpense();
+            const user =
+                await getCurrentUser();
+
+
+            if (!user) {
+
+                window.location.href =
+                    "index.html";
+
+                return;
+
+            }
+
+
+            const source =
+                document.getElementById(
+                    "source"
+                ).value.trim();
+
+
+            const amount =
+                Number(
+                    document.getElementById(
+                        "amount"
+                    ).value
+                );
+
+
+            const forWhat =
+                document.getElementById(
+                    "forWhat"
+                ).value.trim();
+
+
+            const expenseType =
+                document.getElementById(
+                    "expenseType"
+                ).value;
+
+
+            const selectedDate =
+                document.getElementById(
+                    "expenseDate"
+                ).value;
+
+
+            const message =
+                document.getElementById(
+                    "expenseMessage"
+                );
+
+
+            if (
+                !source ||
+                !amount ||
+                !forWhat ||
+                !expenseType ||
+                !selectedDate
+            ) {
+
+                message.textContent =
+                    "Please fill all fields.";
+
+                return;
+
+            }
+
+
+            message.textContent =
+                "Saving expense...";
+
+
+            const {
+                error
+            } =
+                await supabaseClient
+                    .from("expenses")
+                    .insert({
+
+                        user_id:
+                            user.id,
+
+                        source:
+                            source,
+
+                        amount:
+                            amount,
+
+                        for_what:
+                            forWhat,
+
+                        expense_type:
+                            expenseType,
+
+                        expense_date:
+                            selectedDate
+
+                    });
+
+
+            if (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    error.message;
+
+                return;
+
+            }
+
+
+            message.textContent =
+                "Expense saved successfully!";
+
+
+            expenseForm.reset();
+
+
+            if (expenseDate) {
+
+                expenseDate.value =
+                    new Date()
+                        .toISOString()
+                        .split("T")[0];
+
+            }
 
         }
     );
@@ -789,91 +651,23 @@ function initializeAddExpensePage() {
 }
 
 
-// ========================================
-// FORMAT DATE
-// ========================================
-
-function formatDate(dateValue) {
-
-    if (!dateValue) {
-        return "N/A";
-    }
-
-
-    const date =
-        new Date(dateValue);
-
-
-    if (isNaN(date.getTime())) {
-        return "N/A";
-    }
-
-
-    return date.toLocaleDateString(
-        "en-IN",
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
-        }
-    );
-
-}
-
-
-// ========================================
-// FORMAT DATE + TIME
-// ========================================
-
-function formatDateTime(dateValue) {
-
-    if (!dateValue) {
-        return "N/A";
-    }
-
-
-    const date =
-        new Date(dateValue);
-
-
-    if (isNaN(date.getTime())) {
-        return "N/A";
-    }
-
-
-    return date.toLocaleString(
-        "en-IN",
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
-
-}
-
-
-// ========================================
-// LOAD ALL EXPENSES
-// ========================================
+// ============================================
+// ALL EXPENSES
+// ============================================
 
 async function loadAllExpenses() {
 
-    const {
-        data: { user },
-        error: userError
-    } =
-        await supabaseClient.auth.getUser();
+    const user =
+        await getCurrentUser();
 
 
-    if (userError || !user) {
+    if (!user) {
 
         window.location.href =
             "index.html";
 
         return;
+
     }
 
 
@@ -883,144 +677,149 @@ async function loadAllExpenses() {
     } =
         await supabaseClient
             .from("expenses")
-            .select(`
-                id,
-                user_id,
-                source,
-                amount,
-                for_what,
-                expense_type,
-                expense_date,
-                created_at,
-                profiles (
-                    employee_id,
-                    name
-                )
-            `)
+            .select("*")
             .order(
-                "created_at",
-                { ascending: false }
+                "expense_date",
+                {
+                    ascending: false
+                }
             );
+
+
+    const table =
+        document.getElementById(
+            "expenseTable"
+        );
+
+
+    const message =
+        document.getElementById(
+            "expensesMessage"
+        );
 
 
     if (error) {
 
-        console.error(
-            "All expenses error:",
-            error
-        );
+        console.error(error);
+
+        if (message) {
+
+            message.textContent =
+                error.message;
+
+        }
 
         return;
+
     }
 
 
-    const tableBody =
-        document.getElementById("expenseTable");
+    if (!table) {
 
-
-    if (!tableBody) {
         return;
+
     }
 
 
-    tableBody.innerHTML = "";
+    table.innerHTML = "";
 
 
-    if (!expenses || expenses.length === 0) {
+    const {
+        data: profiles
+    } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, employee_id, name"
+            );
 
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8">
-                    No expenses found.
+
+    expenses.forEach(
+        function(expense) {
+
+            const profile =
+                profiles.find(
+                    function(item) {
+
+                        return (
+                            item.id ===
+                            expense.user_id
+                        );
+
+                    }
+                );
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${
+                        profile
+                            ? profile.employee_id
+                            : "Unknown"
+                    }
                 </td>
-            </tr>
-        `;
 
-        return;
-    }
+                <td>
+                    ${escapeHTML(
+                        expense.source
+                    )}
+                </td>
 
+                <td>
+                    ${formatAmount(
+                        expense.amount
+                    )}
+                </td>
 
-    expenses.forEach(expense => {
+                <td>
+                    ${escapeHTML(
+                        expense.for_what
+                    )}
+                </td>
 
-        const row =
-            document.createElement("tr");
+                <td>
+                    ${expense.expense_type}
+                </td>
 
+                <td>
+                    ${expense.expense_date}
+                </td>
 
-        row.innerHTML = `
-
-            <td>
-                ${escapeHtml(
-                    expense.profiles?.employee_id ||
-                    "N/A"
-                )}
-            </td>
-
-            <td>
-                ${escapeHtml(
-                    expense.profiles?.name ||
-                    "Unknown"
-                )}
-            </td>
-
-            <td>
-                ${escapeHtml(expense.source)}
-            </td>
-
-            <td>
-                ${CURRENCY}
-                ${Number(expense.amount).toFixed(2)}
-            </td>
-
-            <td>
-                ${escapeHtml(expense.for_what)}
-            </td>
-
-            <td>
-                ${escapeHtml(expense.expense_type)}
-            </td>
-
-            <td>
-                ${formatDate(
-                    expense.expense_date ||
-                    expense.created_at
-                )}
-            </td>
-
-            <td>
-                ${formatDateTime(
-                    expense.created_at
-                )}
-            </td>
-
-        `;
+            `;
 
 
-        tableBody.appendChild(row);
+            table.appendChild(row);
 
-    });
+        }
+    );
 
 }
 
 
-// ========================================
-// LOAD MY EXPENSES
-// ========================================
+// ============================================
+// MY EXPENSES
+// ============================================
 
 async function loadMyExpenses() {
 
-    const {
-        data: { user },
-        error: userError
-    } =
-        await supabaseClient.auth.getUser();
+    const user =
+        await getCurrentUser();
 
 
-    if (userError || !user) {
+    if (!user) {
 
         window.location.href =
             "index.html";
 
         return;
+
     }
 
 
@@ -1031,253 +830,280 @@ async function loadMyExpenses() {
         await supabaseClient
             .from("expenses")
             .select("*")
-            .eq("user_id", user.id)
+            .eq(
+                "user_id",
+                user.id
+            )
             .order(
-                "created_at",
-                { ascending: false }
+                "expense_date",
+                {
+                    ascending: false
+                }
+            );
+
+
+    const table =
+        document.getElementById(
+            "myExpenseTable"
+        );
+
+
+    const message =
+        document.getElementById(
+            "myExpensesMessage"
+        );
+
+
+    if (error) {
+
+        console.error(error);
+
+        if (message) {
+
+            message.textContent =
+                error.message;
+
+        }
+
+        return;
+
+    }
+
+
+    if (!table) {
+
+        return;
+
+    }
+
+
+    table.innerHTML = "";
+
+
+    expenses.forEach(
+        function(expense) {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${escapeHTML(
+                        expense.source
+                    )}
+                </td>
+
+                <td>
+                    ${formatAmount(
+                        expense.amount
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        expense.for_what
+                    )}
+                </td>
+
+                <td>
+                    ${expense.expense_type}
+                </td>
+
+                <td>
+                    ${expense.expense_date}
+                </td>
+
+                <td>
+
+                    <button
+                        class="small-button secondary"
+                        onclick="editExpense(${expense.id})"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="small-button danger"
+                        onclick="deleteExpense(${expense.id})"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        }
+    );
+
+}
+
+
+// ============================================
+// DELETE EXPENSE
+// ============================================
+
+async function deleteExpense(id) {
+
+    const confirmed =
+        confirm(
+            "Delete this expense?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    const user =
+        await getCurrentUser();
+
+
+    if (!user) {
+
+        window.location.href =
+            "index.html";
+
+        return;
+
+    }
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .from("expenses")
+            .delete()
+            .eq("id", id)
+            .eq(
+                "user_id",
+                user.id
             );
 
 
     if (error) {
 
-        console.error(
-            "My expenses error:",
-            error
-        );
+        alert(error.message);
 
         return;
+
     }
 
 
-    const tableBody =
-        document.getElementById("myExpenseTable");
+    loadMyExpenses();
 
-
-    if (!tableBody) {
-        return;
-    }
-
-
-    tableBody.innerHTML = "";
-
-
-    if (!expenses || expenses.length === 0) {
-
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    No expenses found.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    expenses.forEach(expense => {
-
-        const row =
-            document.createElement("tr");
-
-
-        row.innerHTML = `
-
-            <td>
-                ${escapeHtml(expense.source)}
-            </td>
-
-            <td>
-                ${CURRENCY}
-                ${Number(expense.amount).toFixed(2)}
-            </td>
-
-            <td>
-                ${escapeHtml(expense.for_what)}
-            </td>
-
-            <td>
-                ${escapeHtml(expense.expense_type)}
-            </td>
-
-            <td>
-                ${formatDate(
-                    expense.expense_date ||
-                    expense.created_at
-                )}
-            </td>
-
-            <td>
-
-                <button
-                    class="header-button"
-                    onclick="editExpense(${expense.id})"
-                >
-                    Edit
-                </button>
-
-                <button
-                    class="logout-button"
-                    onclick="deleteExpense(${expense.id})"
-                >
-                    Delete
-                </button>
-
-            </td>
-
-        `;
-
-
-        tableBody.appendChild(row);
-
-    });
+    loadDashboard();
 
 }
 
 
-// ========================================
+// ============================================
 // EDIT EXPENSE
-// ========================================
+// ============================================
 
-async function editExpense(expenseId) {
+async function editExpense(id) {
 
     const {
         data: expense,
-        error: fetchError
+        error
     } =
         await supabaseClient
             .from("expenses")
             .select("*")
-            .eq("id", expenseId)
+            .eq("id", id)
             .single();
 
 
-    if (fetchError || !expense) {
+    if (error) {
 
-        alert(
-            "Unable to load expense."
-        );
+        alert(error.message);
 
         return;
+
     }
 
 
-    const newSource =
+    const source =
         prompt(
             "Source:",
             expense.source
         );
 
 
-    if (newSource === null) {
+    if (source === null) {
+
         return;
+
     }
 
 
-    const newAmount =
+    const amount =
         prompt(
             "Amount:",
             expense.amount
         );
 
 
-    if (newAmount === null) {
+    if (amount === null) {
+
         return;
+
     }
 
 
-    const newForWhat =
+    const forWhat =
         prompt(
             "For What:",
             expense.for_what
         );
 
 
-    if (newForWhat === null) {
+    if (forWhat === null) {
+
         return;
+
     }
 
 
-    const newExpenseType =
-        prompt(
-            "Expense Type (Company / Personal / Room Expense):",
-            expense.expense_type
-        );
-
-
-    if (newExpenseType === null) {
-        return;
-    }
-
-
-    const numericAmount =
-        Number(newAmount);
-
-
-    if (
-        isNaN(numericAmount) ||
-        numericAmount <= 0
-    ) {
-
-        alert(
-            "Please enter a valid amount."
-        );
-
-        return;
-    }
-
-
-    const allowedTypes = [
-        "Company",
-        "Personal",
-        "Room Expense"
-    ];
-
-
-    if (!allowedTypes.includes(newExpenseType)) {
-
-        alert(
-            "Expense Type must be Company, Personal, or Room Expense."
-        );
-
-        return;
-    }
-
-
-    const { error } =
+    const {
+        error: updateError
+    } =
         await supabaseClient
             .from("expenses")
             .update({
 
                 source:
-                    newSource.trim(),
+                    source.trim(),
 
                 amount:
-                    numericAmount,
+                    Number(amount),
 
                 for_what:
-                    newForWhat.trim(),
-
-                expense_type:
-                    newExpenseType
+                    forWhat.trim()
 
             })
-            .eq(
-                "id",
-                expenseId
-            );
+            .eq("id", id);
 
 
-    if (error) {
+    if (updateError) {
 
-        console.error(
-            "Update expense error:",
-            error
+        alert(
+            updateError.message
         );
 
-        alert(error.message);
-
         return;
+
     }
 
 
@@ -1291,135 +1117,82 @@ async function editExpense(expenseId) {
 }
 
 
-// ========================================
-// DELETE EXPENSE
-// ========================================
+// ============================================
+// ESCAPE HTML
+// ============================================
 
-async function deleteExpense(expenseId) {
+function escapeHTML(value) {
 
-    const confirmed =
-        confirm(
-            "Are you sure you want to delete this expense?"
-        );
-
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    const { error } =
-        await supabaseClient
-            .from("expenses")
-            .delete()
-            .eq(
-                "id",
-                expenseId
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Delete expense error:",
-            error
-        );
-
-        alert(error.message);
-
-        return;
-    }
-
-
-    alert(
-        "Expense deleted successfully."
-    );
-
-
-    loadMyExpenses();
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 
 }
 
 
-// ========================================
-// PAGE INITIALIZATION
-// ========================================
+// ============================================
+// LOGOUT
+// ============================================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
+async function logout() {
 
-        const path =
-            window.location.pathname;
-
-
-        // LOGIN
-
-        if (
-            path.endsWith("index.html") ||
-            path.endsWith("/")
-        ) {
-
-            initializeLoginPage();
-
-        }
+    const {
+        error
+    } =
+        await supabaseClient.auth
+            .signOut();
 
 
-        // SIGNUP
+    if (error) {
 
-        if (
-            path.endsWith("signup.html")
-        ) {
+        alert(error.message);
 
-            initializeSignupPage();
-
-        }
-
-
-        // DASHBOARD
-
-        if (
-            path.endsWith("dashboard.html")
-        ) {
-
-            loadUser();
-
-            loadDashboardStats();
-
-        }
-
-
-        // ADD EXPENSE
-
-        if (
-            path.endsWith("add-expense.html")
-        ) {
-
-            initializeAddExpensePage();
-
-        }
-
-
-        // ALL EXPENSES
-
-        if (
-            path.endsWith("expenses.html")
-        ) {
-
-            loadAllExpenses();
-
-        }
-
-
-        // MY EXPENSES
-
-        if (
-            path.endsWith("my-expenses.html")
-        ) {
-
-            loadMyExpenses();
-
-        }
+        return;
 
     }
-);
+
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+// ============================================
+// PAGE INITIALIZATION
+// ============================================
+
+if (
+    document.getElementById(
+        "userInfo"
+    )
+) {
+
+    loadDashboard();
+
+}
+
+
+if (
+    document.getElementById(
+        "expenseTable"
+    )
+) {
+
+    loadAllExpenses();
+
+}
+
+
+if (
+    document.getElementById(
+        "myExpenseTable"
+    )
+) {
+
+    loadMyExpenses();
+
+}

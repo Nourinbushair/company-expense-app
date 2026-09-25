@@ -12,175 +12,141 @@
 
     <title>Add Expense - Company Expense App</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-    <div class="container expense-container">
+<div class="container expense-container">
 
-        <!-- ========================================
-             PAGE HEADER
-        ========================================= -->
+    <div class="page-header">
 
-        <div class="page-header">
+        <div>
 
-            <div>
+            <h1>
+                Add Expense
+            </h1>
 
-                <h1>
-                    Add Expense
-                </h1>
-
-                <p>
-                    Record a new expense
-                </p>
-
-            </div>
+            <p>
+                Record a new expense
+            </p>
 
         </div>
-
-
-        <!-- ========================================
-             EXPENSE FORM
-        ========================================= -->
-
-        <form id="expenseForm">
-
-            <!-- SOURCE -->
-
-            <label for="source">
-                Source
-            </label>
-
-            <input
-                type="text"
-                id="source"
-                placeholder="Salary, Parent, Pocket Money..."
-                required
-            >
-
-
-            <!-- EXPENSE AMOUNT -->
-
-            <label for="amount">
-                Expense Amount
-            </label>
-
-            <div class="amount-input">
-
-                <span>SAR</span>
-
-                <input
-                    type="number"
-                    id="amount"
-                    placeholder="0.00"
-                    min="0.01"
-                    step="0.01"
-                    required
-                >
-
-            </div>
-
-
-            <!-- FOR WHAT -->
-
-            <label for="forWhat">
-                For What
-            </label>
-
-            <input
-                type="text"
-                id="forWhat"
-                placeholder="Office supplies, Lunch..."
-                required
-            >
-
-
-            <!-- EXPENSE TYPE -->
-
-            <label for="expenseType">
-                Expense Type
-            </label>
-
-            <select
-                id="expenseType"
-                required
-            >
-
-                <option value="Company">
-                    Company
-                </option>
-
-                <option value="Personal">
-                    Personal
-                </option>
-
-                <option value="Room Expense">
-                    Room Expense
-                </option>
-
-            </select>
-
-
-            <!-- DATE -->
-
-            <label for="expenseDate">
-                Date
-            </label>
-
-            <input
-                type="date"
-                id="expenseDate"
-                required
-            >
-
-
-            <!-- SAVE -->
-
-            <button
-                type="submit"
-                class="primary-button"
-                id="saveExpenseButton"
-            >
-                Save Expense
-            </button>
-
-        </form>
-
-
-        <!-- MESSAGE -->
-
-        <p id="expenseMessage"></p>
-
-
-        <!-- BACK -->
-
-        <a
-            href="dashboard.html"
-            class="back-link"
-        >
-            ← Back to Dashboard
-        </a>
 
     </div>
 
 
-    <!-- ========================================
-         SUPABASE
-    ========================================= -->
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <form id="expenseForm">
 
 
-    <!-- ========================================
-         APP JAVASCRIPT
-    ========================================= -->
+        <label for="source">
+            Source
+        </label>
 
-    <script src="app.js"></script>
+        <input
+            type="text"
+            id="source"
+            placeholder="Salary, Parent, Pocket Money..."
+            required
+        >
+
+
+        <label for="amount">
+            Expense Amount
+        </label>
+
+        <div class="amount-input">
+
+            <span>
+                SAR
+            </span>
+
+            <input
+                type="number"
+                id="amount"
+                placeholder="0.00"
+                min="0.01"
+                step="0.01"
+                required
+            >
+
+        </div>
+
+
+        <label for="forWhat">
+            For What
+        </label>
+
+        <input
+            type="text"
+            id="forWhat"
+            placeholder="Office supplies, Lunch..."
+            required
+        >
+
+
+        <label for="expenseType">
+            Expense Type
+        </label>
+
+        <select
+            id="expenseType"
+            required
+        >
+
+            <option value="Company">
+                Company
+            </option>
+
+            <option value="Personal">
+                Personal
+            </option>
+
+            <option value="Room Expense">
+                Room Expense
+            </option>
+
+        </select>
+
+
+        <label for="expenseDate">
+            Date
+        </label>
+
+        <input
+            type="date"
+            id="expenseDate"
+            required
+        >
+
+
+        <button
+            type="submit"
+            class="primary-button"
+        >
+            Save Expense
+        </button>
+
+    </form>
+
+
+    <p id="expenseMessage"></p>
+
+
+    <a
+        href="dashboard.html"
+        class="back-link"
+    >
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="app.js"></script>
 
 </body>
 

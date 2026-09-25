@@ -1,34 +1,94 @@
-<form id="loginForm">
+<!DOCTYPE html>
+<html lang="en">
 
-    <label for="loginEmail">
-        Email
-    </label>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <input
-        type="email"
-        id="loginEmail"
-        placeholder="Enter your email"
-        required
-    >
+    <title>Company Expense App - Login</title>
 
-    <label for="loginPassword">
-        Password
-    </label>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-    <input
-        type="password"
-        id="loginPassword"
-        placeholder="Enter your password"
-        required
-    >
+<body>
 
-    <button
-        type="submit"
-        class="primary-button"
-    >
-        Login
-    </button>
+    <div class="auth-container">
 
-</form>
+        <div class="brand-icon">
+            ₹
+        </div>
 
-<p id="loginMessage"></p>
+        <h1>Company Expense App</h1>
+
+        <p class="subtitle">
+            Shared Expense Management
+        </p>
+
+        <h2>Welcome Back</h2>
+
+        <p class="form-description">
+            Login to manage your company expenses.
+        </p>
+
+
+        <form id="loginForm">
+
+            <label for="loginEmail">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="loginEmail"
+                placeholder="Enter your email"
+                required
+            >
+
+
+            <label for="loginPassword">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="loginPassword"
+                placeholder="Enter your password"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Login
+            </button>
+
+        </form>
+
+
+        <p id="loginMessage"></p>
+
+
+        <div class="auth-footer">
+
+            <p>
+                Don't have an account?
+
+                <a href="signup.html">
+                    Create Account
+                </a>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
