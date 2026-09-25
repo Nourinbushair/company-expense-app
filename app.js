@@ -2,7 +2,6 @@
 // COMPANY EXPENSE APP
 // ========================================
 
-
 // ========================================
 // SUPABASE CONFIGURATION
 // ========================================
@@ -12,7 +11,6 @@ const SUPABASE_URL =
 
 const SUPABASE_KEY =
     "sb_publishable_nkJMnNS4PSIQlNfGvXh7Gg_k9C7X9TA";
-
 
 const supabaseClient =
     window.supabase.createClient(
@@ -44,21 +42,18 @@ async function signup() {
         document.getElementById("password")?.value;
 
     const department =
-        document
-            .getElementById("department")
-            ?.value.trim();
+        document.getElementById("department")?.value.trim();
 
     const message =
-        document.getElementById("signupMessage");
+        document.getElementById("signupMessage") ||
+        document.getElementById("message");
 
 
     if (!name || !email || !password) {
 
         if (message) {
-
             message.textContent =
                 "Please fill in all required fields.";
-
         }
 
         return;
@@ -68,10 +63,8 @@ async function signup() {
     if (password.length < 6) {
 
         if (message) {
-
             message.textContent =
                 "Password must be at least 6 characters.";
-
         }
 
         return;
@@ -79,17 +72,12 @@ async function signup() {
 
 
     if (message) {
-
         message.textContent =
             "Creating account...";
-
     }
 
 
-    const {
-        data,
-        error
-    } =
+    const { data, error } =
         await supabaseClient.auth.signUp({
 
             email: email,
@@ -99,11 +87,8 @@ async function signup() {
             options: {
 
                 data: {
-
                     name: name,
-
                     department: department
-
                 }
 
             }
@@ -119,36 +104,31 @@ async function signup() {
         );
 
         if (message) {
-
             message.textContent =
                 error.message;
-
         }
 
         return;
     }
 
 
-    if (message) {
+    if (data.session) {
 
-        if (data.session) {
-
+        if (message) {
             message.textContent =
                 "Account created successfully. Redirecting...";
+        }
 
+        setTimeout(() => {
+            window.location.href =
+                "dashboard.html";
+        }, 1000);
 
-            setTimeout(() => {
+    } else {
 
-                window.location.href =
-                    "dashboard.html";
-
-            }, 1000);
-
-        } else {
-
+        if (message) {
             message.textContent =
                 "Account created. Please verify your email before logging in.";
-
         }
 
     }
@@ -163,26 +143,23 @@ async function signup() {
 async function login() {
 
     const email =
-        document
-            .getElementById("email")
-            ?.value.trim();
+        document.getElementById("loginEmail")?.value.trim();
 
     const password =
-        document
-            .getElementById("password")
-            ?.value;
+        document.getElementById("loginPassword")?.value;
 
     const message =
         document.getElementById("loginMessage");
 
 
+    console.log("Login function started");
+
+
     if (!email || !password) {
 
         if (message) {
-
             message.textContent =
                 "Please enter your email and password.";
-
         }
 
         return;
@@ -190,64 +167,140 @@ async function login() {
 
 
     if (message) {
-
         message.textContent =
             "Logging in...";
-
     }
 
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth.signInWithPassword({
+    try {
 
-            email: email,
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
 
-            password: password
+                email: email,
 
-        });
+                password: password
+
+            });
 
 
-    if (error) {
+        if (error) {
 
-        console.error(
-            "Login error:",
-            error
-        );
+            console.error(
+                "Login error:",
+                error
+            );
 
-        if (message) {
+            if (message) {
+                message.textContent =
+                    error.message;
+            }
 
-            message.textContent =
-                error.message;
-
+            return;
         }
 
-        return;
-    }
+
+        console.log(
+            "Login successful:",
+            data.user
+        );
 
 
-    console.log(
-        "Logged in:",
-        data.user
-    );
+        if (message) {
+            message.textContent =
+                "Login successful. Redirecting...";
+        }
 
-
-    if (message) {
-
-        message.textContent =
-            "Login successful. Redirecting...";
-
-    }
-
-
-    setTimeout(() => {
 
         window.location.href =
             "dashboard.html";
 
-    }, 500);
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected login error:",
+            error
+        );
+
+        if (message) {
+            message.textContent =
+                "Something went wrong. Please try again.";
+        }
+
+    }
+
+}
+
+
+// ========================================
+// LOGIN FORM INITIALIZATION
+// ========================================
+
+function initializeLoginPage() {
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+
+    if (!loginForm) {
+        return;
+    }
+
+
+    loginForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            await login();
+
+        }
+    );
+
+
+    console.log(
+        "Login form ready."
+    );
+
+}
+
+
+// ========================================
+// SIGNUP FORM INITIALIZATION
+// ========================================
+
+function initializeSignupPage() {
+
+    const signupForm =
+        document.getElementById("signupForm");
+
+
+    if (!signupForm) {
+        return;
+    }
+
+
+    signupForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            await signup();
+
+        }
+    );
+
+
+    console.log(
+        "Signup form ready."
+    );
 
 }
 
@@ -258,9 +311,7 @@ async function login() {
 
 async function logout() {
 
-    const {
-        error
-    } =
+    const { error } =
         await supabaseClient.auth.signOut();
 
 
@@ -288,9 +339,7 @@ async function logout() {
 async function loadUser() {
 
     const {
-        data: {
-            user
-        },
+        data: { user },
         error
     } =
         await supabaseClient.auth.getUser();
@@ -333,12 +382,6 @@ async function loadUser() {
         return user;
 
     }
-
-
-    console.log(
-        "Profile:",
-        profile
-    );
 
 
     const userInfo =
@@ -391,38 +434,16 @@ function escapeHtml(value) {
         value === null ||
         value === undefined
     ) {
-
         return "";
-
     }
 
 
     return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
 
@@ -434,18 +455,13 @@ function escapeHtml(value) {
 async function loadDashboardStats() {
 
     const {
-        data: {
-            user
-        },
+        data: { user },
         error: userError
     } =
         await supabaseClient.auth.getUser();
 
 
-    if (
-        userError ||
-        !user
-    ) {
+    if (userError || !user) {
 
         window.location.href =
             "index.html";
@@ -461,9 +477,7 @@ async function loadDashboardStats() {
     } =
         await supabaseClient
             .from("expenses")
-            .select(
-                "amount, expense_type"
-            );
+            .select("amount, expense_type");
 
 
     if (error) {
@@ -479,121 +493,48 @@ async function loadDashboardStats() {
 
 
     let totalAmount = 0;
-
     let companyAmount = 0;
-
     let personalAmount = 0;
-
     let roomAmount = 0;
 
 
-    expenses.forEach(
-        expense => {
+    expenses.forEach(expense => {
 
-            const amount =
-                Number(
-                    expense.amount
-                ) || 0;
+        const amount =
+            Number(expense.amount) || 0;
 
 
-            totalAmount += amount;
+        totalAmount += amount;
 
 
-            if (
-                expense.expense_type ===
-                "Company"
-            ) {
-
-                companyAmount += amount;
-
-            }
-
-
-            if (
-                expense.expense_type ===
-                "Personal"
-            ) {
-
-                personalAmount += amount;
-
-            }
-
-
-            if (
-                expense.expense_type ===
-                "Room Expense"
-            ) {
-
-                roomAmount += amount;
-
-            }
-
+        if (expense.expense_type === "Company") {
+            companyAmount += amount;
         }
-    );
 
 
-    const totalAmountEl =
-        document.getElementById(
-            "totalAmount"
-        );
+        if (expense.expense_type === "Personal") {
+            personalAmount += amount;
+        }
 
 
-    const companyAmountEl =
-        document.getElementById(
-            "companyAmount"
-        );
+        if (expense.expense_type === "Room Expense") {
+            roomAmount += amount;
+        }
+
+    });
 
 
-    const personalAmountEl =
-        document.getElementById(
-            "personalAmount"
-        );
+    document.getElementById("totalAmount").textContent =
+        CURRENCY + " " + totalAmount.toFixed(2);
 
+    document.getElementById("companyAmount").textContent =
+        CURRENCY + " " + companyAmount.toFixed(2);
 
-    const roomAmountEl =
-        document.getElementById(
-            "roomAmount"
-        );
+    document.getElementById("personalAmount").textContent =
+        CURRENCY + " " + personalAmount.toFixed(2);
 
-
-    if (totalAmountEl) {
-
-        totalAmountEl.textContent =
-            CURRENCY +
-            " " +
-            totalAmount.toFixed(2);
-
-    }
-
-
-    if (companyAmountEl) {
-
-        companyAmountEl.textContent =
-            CURRENCY +
-            " " +
-            companyAmount.toFixed(2);
-
-    }
-
-
-    if (personalAmountEl) {
-
-        personalAmountEl.textContent =
-            CURRENCY +
-            " " +
-            personalAmount.toFixed(2);
-
-    }
-
-
-    if (roomAmountEl) {
-
-        roomAmountEl.textContent =
-            CURRENCY +
-            " " +
-            roomAmount.toFixed(2);
-
-    }
+    document.getElementById("roomAmount").textContent =
+        CURRENCY + " " + roomAmount.toFixed(2);
 
 }
 
@@ -604,56 +545,27 @@ async function loadDashboardStats() {
 
 async function addExpense() {
 
-    console.log(
-        "addExpense() started"
-    );
-
-
     const source =
-        document
-            .getElementById("source")
-            ?.value.trim();
-
+        document.getElementById("source")?.value.trim();
 
     const amount =
-        document
-            .getElementById("amount")
-            ?.value;
-
+        document.getElementById("amount")?.value;
 
     const forWhat =
-        document
-            .getElementById("forWhat")
-            ?.value.trim();
-
+        document.getElementById("forWhat")?.value.trim();
 
     const expenseType =
-        document
-            .getElementById("expenseType")
-            ?.value;
-
+        document.getElementById("expenseType")?.value;
 
     const expenseDate =
-        document
-            .getElementById("expenseDate")
-            ?.value;
-
+        document.getElementById("expenseDate")?.value;
 
     const message =
-        document.getElementById(
-            "expenseMessage"
-        );
-
+        document.getElementById("expenseMessage");
 
     const saveButton =
-        document.getElementById(
-            "saveExpenseButton"
-        );
+        document.getElementById("saveExpenseButton");
 
-
-    // ====================================
-    // VALIDATION
-    // ====================================
 
     if (
         !source ||
@@ -664,14 +576,11 @@ async function addExpense() {
     ) {
 
         if (message) {
-
             message.textContent =
                 "Please fill in all fields.";
-
         }
 
         return;
-
     }
 
 
@@ -685,146 +594,88 @@ async function addExpense() {
     ) {
 
         if (message) {
-
             message.textContent =
                 "Please enter a valid amount.";
-
         }
 
         return;
-
     }
 
 
     const allowedTypes = [
-
         "Company",
-
         "Personal",
-
         "Room Expense"
-
     ];
 
 
-    if (
-        !allowedTypes.includes(
-            expenseType
-        )
-    ) {
+    if (!allowedTypes.includes(expenseType)) {
 
         if (message) {
-
             message.textContent =
                 "Invalid expense type.";
-
         }
 
         return;
-
     }
 
 
-    // ====================================
-    // GET LOGGED-IN USER
-    // ====================================
-
     const {
-        data: {
-            user
-        },
+        data: { user },
         error: userError
     } =
         await supabaseClient.auth.getUser();
 
 
-    if (
-        userError ||
-        !user
-    ) {
+    if (userError || !user) {
 
         if (message) {
-
             message.textContent =
                 "Your session has expired. Please login again.";
-
         }
 
-
         setTimeout(() => {
-
             window.location.href =
                 "index.html";
-
         }, 1500);
 
-
         return;
-
     }
 
 
-    // ====================================
-    // DISABLE BUTTON
-    // ====================================
-
     if (saveButton) {
-
-        saveButton.disabled =
-            true;
-
-        saveButton.textContent =
-            "Saving...";
-
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
     }
 
 
     if (message) {
-
         message.textContent =
             "Saving expense...";
-
     }
 
 
-    // ====================================
-    // INSERT EXPENSE
-    // ====================================
-
-    const {
-        data,
-        error
-    } =
+    const { data, error } =
         await supabaseClient
             .from("expenses")
             .insert([{
 
-                user_id:
-                    user.id,
+                user_id: user.id,
 
-                source:
-                    source,
+                source: source,
 
-                amount:
-                    numericAmount,
+                amount: numericAmount,
 
-                for_what:
-                    forWhat,
+                for_what: forWhat,
 
-                expense_type:
-                    expenseType,
+                expense_type: expenseType,
 
-                expense_date:
-                    expenseDate
+                expense_date: expenseDate
 
             }])
             .select()
             .single();
 
-
-    // ====================================
-    // ERROR
-    // ====================================
 
     if (error) {
 
@@ -833,29 +684,18 @@ async function addExpense() {
             error
         );
 
-
         if (message) {
-
             message.textContent =
-                "Error: " +
-                error.message;
-
+                "Error: " + error.message;
         }
-
 
         if (saveButton) {
-
-            saveButton.disabled =
-                false;
-
+            saveButton.disabled = false;
             saveButton.textContent =
                 "Save Expense";
-
         }
 
-
         return;
-
     }
 
 
@@ -865,43 +705,152 @@ async function addExpense() {
     );
 
 
-    // ====================================
-    // SUCCESS
-    // ====================================
-
     if (message) {
-
         message.textContent =
             "Expense added successfully!";
-
     }
 
-
-    // Clear form
-
-    const form =
-        document.getElementById(
-            "expenseForm"
-        );
-
-
-    if (form) {
-
-        form.reset();
-
-    }
-
-
-    // ====================================
-    // REDIRECT
-    // ====================================
 
     setTimeout(() => {
-
         window.location.href =
             "dashboard.html";
-
     }, 1000);
+
+}
+
+
+// ========================================
+// SET TODAY DATE
+// ========================================
+
+function setTodayDate() {
+
+    const expenseDate =
+        document.getElementById("expenseDate");
+
+
+    if (!expenseDate) {
+        return;
+    }
+
+
+    const now = new Date();
+
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(now.getMonth() + 1)
+            .padStart(2, "0");
+
+    const day =
+        String(now.getDate())
+            .padStart(2, "0");
+
+
+    expenseDate.value =
+        `${year}-${month}-${day}`;
+
+}
+
+
+// ========================================
+// ADD EXPENSE INITIALIZATION
+// ========================================
+
+function initializeAddExpensePage() {
+
+    setTodayDate();
+
+
+    const expenseForm =
+        document.getElementById("expenseForm");
+
+
+    if (!expenseForm) {
+        return;
+    }
+
+
+    expenseForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            await addExpense();
+
+        }
+    );
+
+}
+
+
+// ========================================
+// FORMAT DATE
+// ========================================
+
+function formatDate(dateValue) {
+
+    if (!dateValue) {
+        return "N/A";
+    }
+
+
+    const date =
+        new Date(dateValue);
+
+
+    if (isNaN(date.getTime())) {
+        return "N/A";
+    }
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+// ========================================
+// FORMAT DATE + TIME
+// ========================================
+
+function formatDateTime(dateValue) {
+
+    if (!dateValue) {
+        return "N/A";
+    }
+
+
+    const date =
+        new Date(dateValue);
+
+
+    if (isNaN(date.getTime())) {
+        return "N/A";
+    }
+
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
 
 }
 
@@ -913,24 +862,18 @@ async function addExpense() {
 async function loadAllExpenses() {
 
     const {
-        data: {
-            user
-        },
+        data: { user },
         error: userError
     } =
         await supabaseClient.auth.getUser();
 
 
-    if (
-        userError ||
-        !user
-    ) {
+    if (userError || !user) {
 
         window.location.href =
             "index.html";
 
         return;
-
     }
 
 
@@ -956,9 +899,7 @@ async function loadAllExpenses() {
             `)
             .order(
                 "created_at",
-                {
-                    ascending: false
-                }
+                { ascending: false }
             );
 
 
@@ -970,198 +911,93 @@ async function loadAllExpenses() {
         );
 
         return;
-
     }
 
 
     const tableBody =
-        document.getElementById(
-            "expensesTableBody"
-        );
+        document.getElementById("expenseTable");
 
 
     if (!tableBody) {
-
         return;
-
     }
 
 
     tableBody.innerHTML = "";
 
 
-    if (
-        !expenses ||
-        expenses.length === 0
-    ) {
+    if (!expenses || expenses.length === 0) {
 
         tableBody.innerHTML = `
-
             <tr>
-
-                <td
-                    colspan="8"
-                    style="text-align:center;"
-                >
+                <td colspan="8">
                     No expenses found.
                 </td>
-
             </tr>
-
         `;
 
         return;
-
     }
 
 
-    expenses.forEach(
-        expense => {
+    expenses.forEach(expense => {
 
-            const row =
-                document.createElement(
-                    "tr"
-                );
+        const row =
+            document.createElement("tr");
 
 
-            // Employee ID
+        row.innerHTML = `
 
-            const employeeCell =
-                document.createElement(
-                    "td"
-                );
+            <td>
+                ${escapeHtml(
+                    expense.profiles?.employee_id ||
+                    "N/A"
+                )}
+            </td>
 
-            employeeCell.textContent =
-                expense.profiles?.employee_id ||
-                "N/A";
+            <td>
+                ${escapeHtml(
+                    expense.profiles?.name ||
+                    "Unknown"
+                )}
+            </td>
 
+            <td>
+                ${escapeHtml(expense.source)}
+            </td>
 
-            // Name
+            <td>
+                ${CURRENCY}
+                ${Number(expense.amount).toFixed(2)}
+            </td>
 
-            const nameCell =
-                document.createElement(
-                    "td"
-                );
+            <td>
+                ${escapeHtml(expense.for_what)}
+            </td>
 
-            nameCell.textContent =
-                expense.profiles?.name ||
-                "Unknown";
+            <td>
+                ${escapeHtml(expense.expense_type)}
+            </td>
 
-
-            // Source
-
-            const sourceCell =
-                document.createElement(
-                    "td"
-                );
-
-            sourceCell.textContent =
-                expense.source;
-
-
-            // Amount
-
-            const amountCell =
-                document.createElement(
-                    "td"
-                );
-
-            amountCell.textContent =
-                CURRENCY +
-                " " +
-                Number(
-                    expense.amount
-                ).toFixed(2);
-
-
-            // For What
-
-            const forWhatCell =
-                document.createElement(
-                    "td"
-                );
-
-            forWhatCell.textContent =
-                expense.for_what;
-
-
-            // Expense Type
-
-            const typeCell =
-                document.createElement(
-                    "td"
-                );
-
-            typeCell.textContent =
-                expense.expense_type;
-
-
-            // Date
-
-            const dateCell =
-                document.createElement(
-                    "td"
-                );
-
-            dateCell.textContent =
-                formatDate(
+            <td>
+                ${formatDate(
                     expense.expense_date ||
                     expense.created_at
-                );
+                )}
+            </td>
 
-
-            // Created Time
-
-            const createdCell =
-                document.createElement(
-                    "td"
-                );
-
-            createdCell.textContent =
-                formatDateTime(
+            <td>
+                ${formatDateTime(
                     expense.created_at
-                );
+                )}
+            </td>
+
+        `;
 
 
-            row.appendChild(
-                employeeCell
-            );
+        tableBody.appendChild(row);
 
-            row.appendChild(
-                nameCell
-            );
-
-            row.appendChild(
-                sourceCell
-            );
-
-            row.appendChild(
-                amountCell
-            );
-
-            row.appendChild(
-                forWhatCell
-            );
-
-            row.appendChild(
-                typeCell
-            );
-
-            row.appendChild(
-                dateCell
-            );
-
-            row.appendChild(
-                createdCell
-            );
-
-
-            tableBody.appendChild(
-                row
-            );
-
-        }
-    );
+    });
 
 }
 
@@ -1173,24 +1009,18 @@ async function loadAllExpenses() {
 async function loadMyExpenses() {
 
     const {
-        data: {
-            user
-        },
+        data: { user },
         error: userError
     } =
         await supabaseClient.auth.getUser();
 
 
-    if (
-        userError ||
-        !user
-    ) {
+    if (userError || !user) {
 
         window.location.href =
             "index.html";
 
         return;
-
     }
 
 
@@ -1201,15 +1031,10 @@ async function loadMyExpenses() {
         await supabaseClient
             .from("expenses")
             .select("*")
-            .eq(
-                "user_id",
-                user.id
-            )
+            .eq("user_id", user.id)
             .order(
                 "created_at",
-                {
-                    ascending: false
-                }
+                { ascending: false }
             );
 
 
@@ -1221,225 +1046,91 @@ async function loadMyExpenses() {
         );
 
         return;
-
     }
 
 
     const tableBody =
-        document.getElementById(
-            "myExpensesTableBody"
-        );
+        document.getElementById("myExpenseTable");
 
 
     if (!tableBody) {
-
         return;
-
     }
 
 
     tableBody.innerHTML = "";
 
 
-    if (
-        !expenses ||
-        expenses.length === 0
-    ) {
+    if (!expenses || expenses.length === 0) {
 
         tableBody.innerHTML = `
-
             <tr>
-
-                <td
-                    colspan="7"
-                    style="text-align:center;"
-                >
+                <td colspan="6">
                     No expenses found.
                 </td>
-
             </tr>
-
         `;
 
         return;
-
     }
 
 
-    expenses.forEach(
-        expense => {
+    expenses.forEach(expense => {
 
-            const row =
-                document.createElement(
-                    "tr"
-                );
+        const row =
+            document.createElement("tr");
 
 
-            // Source
+        row.innerHTML = `
 
-            const sourceCell =
-                document.createElement(
-                    "td"
-                );
+            <td>
+                ${escapeHtml(expense.source)}
+            </td>
 
-            sourceCell.textContent =
-                expense.source;
+            <td>
+                ${CURRENCY}
+                ${Number(expense.amount).toFixed(2)}
+            </td>
 
+            <td>
+                ${escapeHtml(expense.for_what)}
+            </td>
 
-            // Amount
+            <td>
+                ${escapeHtml(expense.expense_type)}
+            </td>
 
-            const amountCell =
-                document.createElement(
-                    "td"
-                );
-
-            amountCell.textContent =
-                CURRENCY +
-                " " +
-                Number(
-                    expense.amount
-                ).toFixed(2);
-
-
-            // For What
-
-            const forWhatCell =
-                document.createElement(
-                    "td"
-                );
-
-            forWhatCell.textContent =
-                expense.for_what;
-
-
-            // Expense Type
-
-            const typeCell =
-                document.createElement(
-                    "td"
-                );
-
-            typeCell.textContent =
-                expense.expense_type;
-
-
-            // Date
-
-            const dateCell =
-                document.createElement(
-                    "td"
-                );
-
-            dateCell.textContent =
-                formatDate(
+            <td>
+                ${formatDate(
                     expense.expense_date ||
                     expense.created_at
-                );
+                )}
+            </td>
+
+            <td>
+
+                <button
+                    class="header-button"
+                    onclick="editExpense(${expense.id})"
+                >
+                    Edit
+                </button>
+
+                <button
+                    class="logout-button"
+                    onclick="deleteExpense(${expense.id})"
+                >
+                    Delete
+                </button>
+
+            </td>
+
+        `;
 
 
-            // Edit
+        tableBody.appendChild(row);
 
-            const editCell =
-                document.createElement(
-                    "td"
-                );
-
-
-            const editButton =
-                document.createElement(
-                    "button"
-                );
-
-
-            editButton.textContent =
-                "Edit";
-
-
-            editButton.className =
-                "header-button";
-
-
-            editButton.onclick =
-                () =>
-                    editExpense(
-                        expense
-                    );
-
-
-            editCell.appendChild(
-                editButton
-            );
-
-
-            // Delete
-
-            const deleteCell =
-                document.createElement(
-                    "td"
-                );
-
-
-            const deleteButton =
-                document.createElement(
-                    "button"
-                );
-
-
-            deleteButton.textContent =
-                "Delete";
-
-
-            deleteButton.className =
-                "logout-button";
-
-
-            deleteButton.onclick =
-                () =>
-                    deleteExpense(
-                        expense.id
-                    );
-
-
-            deleteCell.appendChild(
-                deleteButton
-            );
-
-
-            row.appendChild(
-                sourceCell
-            );
-
-            row.appendChild(
-                amountCell
-            );
-
-            row.appendChild(
-                forWhatCell
-            );
-
-            row.appendChild(
-                typeCell
-            );
-
-            row.appendChild(
-                dateCell
-            );
-
-            row.appendChild(
-                editCell
-            );
-
-            row.appendChild(
-                deleteCell
-            );
-
-
-            tableBody.appendChild(
-                row
-            );
-
-        }
-    );
+    });
 
 }
 
@@ -1448,9 +1139,28 @@ async function loadMyExpenses() {
 // EDIT EXPENSE
 // ========================================
 
-async function editExpense(
-    expense
-) {
+async function editExpense(expenseId) {
+
+    const {
+        data: expense,
+        error: fetchError
+    } =
+        await supabaseClient
+            .from("expenses")
+            .select("*")
+            .eq("id", expenseId)
+            .single();
+
+
+    if (fetchError || !expense) {
+
+        alert(
+            "Unable to load expense."
+        );
+
+        return;
+    }
+
 
     const newSource =
         prompt(
@@ -1460,9 +1170,7 @@ async function editExpense(
 
 
     if (newSource === null) {
-
         return;
-
     }
 
 
@@ -1474,9 +1182,7 @@ async function editExpense(
 
 
     if (newAmount === null) {
-
         return;
-
     }
 
 
@@ -1488,9 +1194,7 @@ async function editExpense(
 
 
     if (newForWhat === null) {
-
         return;
-
     }
 
 
@@ -1501,19 +1205,13 @@ async function editExpense(
         );
 
 
-    if (
-        newExpenseType === null
-    ) {
-
+    if (newExpenseType === null) {
         return;
-
     }
 
 
     const numericAmount =
-        Number(
-            newAmount
-        );
+        Number(newAmount);
 
 
     if (
@@ -1526,39 +1224,27 @@ async function editExpense(
         );
 
         return;
-
     }
 
 
     const allowedTypes = [
-
         "Company",
-
         "Personal",
-
         "Room Expense"
-
     ];
 
 
-    if (
-        !allowedTypes.includes(
-            newExpenseType
-        )
-    ) {
+    if (!allowedTypes.includes(newExpenseType)) {
 
         alert(
             "Expense Type must be Company, Personal, or Room Expense."
         );
 
         return;
-
     }
 
 
-    const {
-        error
-    } =
+    const { error } =
         await supabaseClient
             .from("expenses")
             .update({
@@ -1578,7 +1264,7 @@ async function editExpense(
             })
             .eq(
                 "id",
-                expense.id
+                expenseId
             );
 
 
@@ -1589,12 +1275,9 @@ async function editExpense(
             error
         );
 
-        alert(
-            error.message
-        );
+        alert(error.message);
 
         return;
-
     }
 
 
@@ -1612,9 +1295,7 @@ async function editExpense(
 // DELETE EXPENSE
 // ========================================
 
-async function deleteExpense(
-    expenseId
-) {
+async function deleteExpense(expenseId) {
 
     const confirmed =
         confirm(
@@ -1623,15 +1304,11 @@ async function deleteExpense(
 
 
     if (!confirmed) {
-
         return;
-
     }
 
 
-    const {
-        error
-    } =
+    const { error } =
         await supabaseClient
             .from("expenses")
             .delete()
@@ -1648,12 +1325,9 @@ async function deleteExpense(
             error
         );
 
-        alert(
-            error.message
-        );
+        alert(error.message);
 
         return;
-
     }
 
 
@@ -1668,269 +1342,84 @@ async function deleteExpense(
 
 
 // ========================================
-// DATE FORMAT
+// PAGE INITIALIZATION
 // ========================================
 
-function formatDate(
-    dateValue
-) {
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
 
-    if (!dateValue) {
-
-        return "N/A";
-
-    }
+        const path =
+            window.location.pathname;
 
 
-    const date =
-        new Date(
-            dateValue
-        );
+        // LOGIN
 
+        if (
+            path.endsWith("index.html") ||
+            path.endsWith("/")
+        ) {
 
-    if (
-        isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return "N/A";
-
-    }
-
-
-    return date.toLocaleDateString(
-        "en-IN",
-        {
-
-            year: "numeric",
-
-            month: "short",
-
-            day: "numeric"
+            initializeLoginPage();
 
         }
-    );
-
-}
 
 
-// ========================================
-// DATE + TIME FORMAT
-// ========================================
+        // SIGNUP
 
-function formatDateTime(
-    dateValue
-) {
+        if (
+            path.endsWith("signup.html")
+        ) {
 
-    if (!dateValue) {
-
-        return "N/A";
-
-    }
-
-
-    const date =
-        new Date(
-            dateValue
-        );
-
-
-    if (
-        isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return "N/A";
-
-    }
-
-
-    return date.toLocaleString(
-        "en-IN",
-        {
-
-            year: "numeric",
-
-            month: "short",
-
-            day: "numeric",
-
-            hour: "2-digit",
-
-            minute: "2-digit"
+            initializeSignupPage();
 
         }
-    );
-
-}
 
 
-// ========================================
-// SET TODAY'S DATE
-// ========================================
+        // DASHBOARD
 
-function setTodayDate() {
+        if (
+            path.endsWith("dashboard.html")
+        ) {
 
-    const expenseDate =
-        document.getElementById(
-            "expenseDate"
-        );
+            loadUser();
 
-
-    if (!expenseDate) {
-
-        return;
-
-    }
-
-
-    const now =
-        new Date();
-
-
-    const year =
-        now.getFullYear();
-
-
-    const month =
-        String(
-            now.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const day =
-        String(
-            now.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    expenseDate.value =
-        `${year}-${month}-${day}`;
-
-}
-
-
-// ========================================
-// ADD EXPENSE FORM INITIALIZATION
-// ========================================
-
-function initializeAddExpensePage() {
-
-    console.log(
-        "Initializing Add Expense page..."
-    );
-
-
-    setTodayDate();
-
-
-    const expenseForm =
-        document.getElementById(
-            "expenseForm"
-        );
-
-
-    if (!expenseForm) {
-
-        console.error(
-            "expenseForm not found."
-        );
-
-        return;
-
-    }
-
-
-    expenseForm.addEventListener(
-        "submit",
-        async function(event) {
-
-            // IMPORTANT:
-            // Prevent normal browser form submission
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-
-            await addExpense();
+            loadDashboardStats();
 
         }
-    );
 
 
-    console.log(
-        "Add Expense form ready."
-    );
+        // ADD EXPENSE
 
-}
+        if (
+            path.endsWith("add-expense.html")
+        ) {
 
+            initializeAddExpensePage();
 
-// ========================================
-// DASHBOARD INITIALIZATION
-// ========================================
-
-if (
-    window.location.pathname.endsWith(
-        "dashboard.html"
-    )
-) {
-
-    loadUser();
-
-    loadDashboardStats();
-
-}
+        }
 
 
-// ========================================
-// ALL EXPENSES INITIALIZATION
-// ========================================
+        // ALL EXPENSES
 
-if (
-    window.location.pathname.endsWith(
-        "expenses.html"
-    )
-) {
+        if (
+            path.endsWith("expenses.html")
+        ) {
 
-    loadAllExpenses();
+            loadAllExpenses();
 
-}
+        }
 
 
-// ========================================
-// MY EXPENSES INITIALIZATION
-// ========================================
+        // MY EXPENSES
 
-if (
-    window.location.pathname.endsWith(
-        "my-expenses.html"
-    )
-) {
+        if (
+            path.endsWith("my-expenses.html")
+        ) {
 
-    loadMyExpenses();
+            loadMyExpenses();
 
-}
+        }
 
-
-// ========================================
-// ADD EXPENSE INITIALIZATION
-// ========================================
-
-if (
-    window.location.pathname.endsWith(
-        "add-expense.html"
-    )
-) {
-
-    initializeAddExpensePage();
-
-}
+    }
+);
