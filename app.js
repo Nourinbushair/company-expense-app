@@ -1361,3 +1361,238 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+
+// ==========================================
+// EDIT EXPENSE
+// ==========================================
+
+async function openEditModal(expenseId) {
+
+    try {
+
+        const {
+            data: { user },
+            error: userError
+        } = await supabaseClient.auth.getUser();
+
+        if (userError) {
+            throw userError;
+        }
+
+        if (!user) {
+            window.location.href = "index.html";
+            return;
+        }
+
+        // Get ONLY this user's expense
+        const { data: expense, error } = await supabaseClient
+            .from("expenses")
+            .select("*")
+            .eq("id", expenseId)
+            .eq("user_id", user.id)
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        if (!expense) {
+            alert("Expense not found.");
+            return;
+        }
+
+        // Fill the form
+        document.getElementById("editExpenseId").value = expense.id;
+
+        document.getElementById("editSource").value =
+            expense.source || "";
+
+        document.getElementById("editAmount").value =
+            expense.amount || "";
+
+        document.getElementById("editForWhat").value =
+            expense.for_what || "";
+
+        document.getElementById("editExpenseType").value =
+            expense.expense_type || "Company";
+
+        document.getElementById("editExpenseDate").value =
+            expense.expense_date || "";
+
+        document.getElementById("editExpenseMessage").textContent = "";
+
+        // Show modal
+        document
+            .getElementById("editExpenseModal")
+            .classList.add("show");
+
+    } catch (error) {
+
+        console.error("Edit Expense Error:", error);
+
+        alert("Unable to load this expense.");
+    }
+}
+
+
+// ==========================================
+// CLOSE EDIT MODAL
+// ==========================================
+
+function closeEditModal() {
+
+    const modal =
+        document.getElementById("editExpenseModal");
+
+    if (modal) {
+        modal.classList.remove("show");
+    }
+
+}
+
+
+// ==========================================
+// SAVE EDITED EXPENSE
+// ==========================================
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const editForm =
+        document.getElementById("editExpenseForm");
+
+    if (!editForm) {
+        return;
+    }
+
+    editForm.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const message =
+            document.getElementById("editExpenseMessage");
+
+        const saveButton =
+            editForm.querySelector(".save-changes-button");
+
+        const expenseId =
+            document.getElementById("editExpenseId").value;
+
+        const source =
+            document.getElementById("editSource").value.trim();
+
+        const amount =
+            document.getElementById("editAmount").value;
+
+        const forWhat =
+            document.getElementById("editForWhat").value.trim();
+
+        const expenseType =
+            document.getElementById("editExpenseType").value;
+
+        const expenseDate =
+            document.getElementById("editExpenseDate").value;
+
+
+        if (!source || !amount || !forWhat || !expenseDate) {
+
+            message.textContent =
+                "Please fill in all fields.";
+
+            return;
+        }
+
+
+        try {
+
+            saveButton.disabled = true;
+
+            saveButton.textContent =
+                "Saving...";
+
+            message.textContent = "";
+
+
+            const {
+                data: { user },
+                error: userError
+            } = await supabaseClient.auth.getUser();
+
+
+            if (userError) {
+                throw userError;
+            }
+
+
+            if (!user) {
+
+                window.location.href =
+                    "index.html";
+
+                return;
+            }
+
+
+            // IMPORTANT:
+            // User can only update their own expense.
+            const { error } = await supabaseClient
+                .from("expenses")
+                .update({
+
+                    source: source,
+
+                    amount: Number(amount),
+
+                    for_what: forWhat,
+
+                    expense_type: expenseType,
+
+                    expense_date: expenseDate,
+
+                    updated_at: new Date().toISOString()
+
+                })
+                .eq("id", expenseId)
+                .eq("user_id", user.id);
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            message.textContent =
+                "Expense updated successfully.";
+
+
+            setTimeout(() => {
+
+                closeEditModal();
+
+                loadMyExpenses();
+
+            }, 700);
+
+
+        } catch (error) {
+
+            console.error(
+                "Save Expense Error:",
+                error
+            );
+
+            message.textContent =
+                error.message ||
+                "Unable to update expense.";
+
+        } finally {
+
+            saveButton.disabled = false;
+
+            saveButton.textContent =
+                "Save Changes";
+
+        }
+
+    });
+
+});
