@@ -59,6 +59,176 @@
     </div>
 
 </div>
+<!-- ==========================================
+     EDIT EXPENSE MODAL
+========================================== -->
+
+<div id="editExpenseModal" class="modal-overlay">
+
+    <div class="edit-modal">
+
+        <!-- HEADER -->
+        <div class="edit-modal-header">
+
+            <div>
+                <h2>Edit Expense</h2>
+                <p>Update your expense details</p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeEditModal()"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        <!-- FORM -->
+        <form id="editExpenseForm">
+
+            <!-- Hidden Expense ID -->
+            <input
+                type="hidden"
+                id="editExpenseId"
+            >
+
+
+            <!-- SOURCE -->
+            <div class="form-group">
+
+                <label for="editSource">
+                    Source
+                </label>
+
+                <input
+                    type="text"
+                    id="editSource"
+                    placeholder="Salary, Parent, Pocket Money..."
+                    required
+                >
+
+            </div>
+
+
+            <!-- AMOUNT -->
+            <div class="form-group">
+
+                <label for="editAmount">
+                    Expense Amount
+                </label>
+
+                <div class="amount-input">
+
+                    <span>SAR</span>
+
+                    <input
+                        type="number"
+                        id="editAmount"
+                        placeholder="0.00"
+                        min="0.01"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- FOR WHAT -->
+            <div class="form-group">
+
+                <label for="editForWhat">
+                    For What
+                </label>
+
+                <input
+                    type="text"
+                    id="editForWhat"
+                    placeholder="Office supplies, Lunch..."
+                    required
+                >
+
+            </div>
+
+
+            <!-- EXPENSE TYPE -->
+            <div class="form-group">
+
+                <label for="editExpenseType">
+                    Expense Type
+                </label>
+
+                <select
+                    id="editExpenseType"
+                    required
+                >
+
+                    <option value="Company">
+                        Company
+                    </option>
+
+                    <option value="Personal">
+                        Personal
+                    </option>
+
+                    <option value="Room Expense">
+                        Room Expense
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- DATE -->
+            <div class="form-group">
+
+                <label for="editExpenseDate">
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    id="editExpenseDate"
+                    required
+                >
+
+            </div>
+
+
+            <!-- MESSAGE -->
+            <p id="editExpenseMessage"></p>
+
+
+            <!-- BUTTONS -->
+            <div class="edit-modal-actions">
+
+                <button
+                    type="button"
+                    class="cancel-button"
+                    onclick="closeEditModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-changes-button"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
