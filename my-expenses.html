@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>My Expenses - Company Expense App</title>
 
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
@@ -21,85 +14,54 @@
 <div class="container">
 
     <div class="page-header">
-
         <div>
-
-            <h1>
-                My Expenses
-            </h1>
-
-            <p>
-                Expenses added by you
-            </p>
-
+            <h1>My Expenses</h1>
+            <p>All expenses added by you</p>
         </div>
 
+        <a href="add-expense.html" class="primary-button">
+            + Add Expense
+        </a>
     </div>
 
+    <div id="myExpensesMessage"></div>
 
-    <div class="table-wrapper">
+    <div class="table-container">
 
         <table>
 
             <thead>
-
                 <tr>
-
-                    <th>
-                        Source
-                    </th>
-
-                    <th>
-                        Amount
-                    </th>
-
-                    <th>
-                        For What
-                    </th>
-
-                    <th>
-                        Type
-                    </th>
-
-                    <th>
-                        Date
-                    </th>
-
-                    <th>
-                        Actions
-                    </th>
-
+                    <th>Date</th>
+                    <th>Source</th>
+                    <th>For What</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Added</th>
+                    <th>Actions</th>
                 </tr>
-
             </thead>
 
-
-            <tbody id="myExpenseTable">
-
+            <tbody id="myExpensesTableBody">
+                <tr>
+                    <td colspan="7">Loading your expenses...</td>
+                </tr>
             </tbody>
 
         </table>
 
     </div>
 
-
-    <p id="myExpensesMessage"></p>
-
-
-    <a
-        href="dashboard.html"
-        class="back-link"
-    >
-        ← Back to Dashboard
-    </a>
+    <div style="margin-top: 20px;">
+        <a href="dashboard.html" class="back-link">
+            ← Back to Dashboard
+        </a>
+    </div>
 
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script src="app.js"></script>
 
 </body>
-
 </html>

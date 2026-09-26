@@ -1196,3 +1196,168 @@ if (
     loadMyExpenses();
 
 }
+
+// ==========================================
+// MY EXPENSES
+// Shows ALL expenses created by logged-in user
+// ==========================================
+
+async function loadMyExpenses() {
+
+    const tableBody = document.getElementById("myExpensesTableBody");
+    const message = document.getElementById("myExpensesMessage");
+
+    if (!tableBody) {
+        return;
+    }
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="7">Loading your expenses...</td>
+        </tr>
+    `;
+
+    try {
+
+        // Get currently logged-in user
+        const {
+            data: { user },
+            error: userError
+        } = await supabaseClient.auth.getUser();
+
+        if (userError) {
+            throw userError;
+        }
+
+        if (!user) {
+
+            window.location.href = "index.html";
+            return;
+        }
+
+        console.log("Logged-in user ID:", user.id);
+
+        // IMPORTANT:
+        // Only filter by user_id.
+        // DO NOT filter by expense_type.
+        const { data: expenses, error } = await supabaseClient
+            .from("expenses")
+            .select(`
+                id,
+                user_id,
+                source,
+                amount,
+                for_what,
+                expense_type,
+                expense_date,
+                created_at,
+                updated_at
+            `)
+            .eq("user_id", user.id)
+            .order("expense_date", { ascending: false })
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            throw error;
+        }
+
+        console.log("My expenses:", expenses);
+
+        if (!expenses || expenses.length === 0) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7">
+                        You have not added any expenses yet.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tableBody.innerHTML = expenses.map(expense => {
+
+            const amount = Number(expense.amount || 0).toFixed(2);
+
+            const createdDate = expense.created_at
+                ? new Date(expense.created_at).toLocaleString()
+                : "-";
+
+            return `
+                <tr>
+
+                    <td>
+                        ${escapeHtml(expense.expense_date || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(expense.source || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(expense.for_what || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(expense.expense_type || "-")}
+                    </td>
+
+                    <td>
+                        <strong>SAR ${amount}</strong>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(createdDate)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="edit-button"
+                            onclick="editExpense(${expense.id})">
+                            Edit
+                        </button>
+
+                        <button
+                            class="delete-button"
+                            onclick="deleteExpense(${expense.id})">
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+
+    } catch (error) {
+
+        console.error("My Expenses Error:", error);
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    Unable to load your expenses.
+                </td>
+            </tr>
+        `;
+
+        if (message) {
+            message.innerHTML = `
+                <p class="error-message">
+                    ${escapeHtml(error.message)}
+                </p>
+            `;
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    if (document.getElementById("myExpensesTableBody")) {
+        loadMyExpenses();
+    }
+
+});
